@@ -116,40 +116,122 @@
             box-shadow: var(--shadow-lg);
         }
 
+        /* 🆕 MEJORAS DE LEGIBILIDAD PARA CAPTURA HD */
+        #capture-area {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            background: #ffffff !important;
+            padding: 40px;
+            min-width: 900px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .detalle-table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 1rem !important;
             margin-top: 20px;
         }
 
         .detalle-table th {
-            background: var(--bg);
-            padding: 12px;
+            background: #f8fafc !important;
+            padding: 16px 12px !important;
             text-align: center;
-            font-weight: 600;
-            color: var(--text-light);
+            font-weight: 700 !important;
+            color: #475569 !important;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.85rem !important;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 3px solid #e2e8f0 !important;
         }
 
         .detalle-table td {
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
+            padding: 14px 12px !important;
+            border-bottom: 1px solid #e2e8f0;
             text-align: center;
+            font-weight: 500;
         }
 
         .detalle-table td:first-child {
             text-align: left;
         }
 
-        .col-bodega { color: #8b5cf6; font-weight: 600; }
-        .col-exhibicion { color: #06b6d4; font-weight: 600; }
-        .col-total { color: var(--primary); font-weight: 700; }
+        .detalle-table code {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace !important;
+            font-size: 0.9rem !important;
+            padding: 6px 10px !important;
+            background: #f1f5f9 !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+        }
 
-        /* NUEVOS ESTILOS PARA CAPTURA */
+        .col-bodega { 
+            color: #7c3aed !important; 
+            font-weight: 700 !important;
+            font-size: 1.05rem !important;
+        }
+
+        .col-exhibicion { 
+            color: #0891b2 !important; 
+            font-weight: 700 !important;
+            font-size: 1.05rem !important;
+        }
+
+        .col-total { 
+            color: #2563eb !important; 
+            font-weight: 800 !important;
+            font-size: 1.1rem !important;
+        }
+
+        .capture-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .capture-header h2 {
+            font-size: 2rem !important;
+            font-weight: 800 !important;
+            color: #1e293b !important;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .capture-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 24px !important;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 1rem !important;
+        }
+
+        .capture-info-item {
+            text-align: center;
+        }
+
+        .capture-info-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .capture-info-value {
+            font-weight: 700 !important;
+            font-size: 1.2rem !important;
+            color: var(--text);
+            margin-top: 4px;
+        }
+
+        /* Botón de captura mejorado */
         .capture-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -177,52 +259,6 @@
         .capture-btn.capturing {
             background: #10b981;
             pointer-events: none;
-        }
-
-        /* Área que se va a capturar */
-        #capture-area {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        .capture-header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .capture-header h2 {
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        .capture-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: var(--bg);
-            border-radius: 8px;
-        }
-
-        .capture-info-item {
-            text-align: center;
-        }
-
-        .capture-info-label {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .capture-info-value {
-            font-weight: 600;
-            color: var(--text);
-            margin-top: 4px;
         }
 
         /* Notificación de captura */
@@ -272,15 +308,21 @@
                 height: 100%;
                 max-height: 100vh;
                 border-radius: 0;
+                padding: 20px;
+            }
+
+            #capture-area {
+                min-width: auto;
+                padding: 20px;
             }
 
             .detalle-table {
-                font-size: 0.8rem;
+                font-size: 0.85rem !important;
             }
 
             .detalle-table th,
             .detalle-table td {
-                padding: 8px 4px;
+                padding: 10px 6px !important;
             }
 
             .capture-btn {
@@ -292,6 +334,11 @@
 
             .capture-info {
                 grid-template-columns: 1fr;
+                padding: 16px !important;
+            }
+
+            .capture-header h2 {
+                font-size: 1.5rem !important;
             }
         }
     </style>
@@ -324,10 +371,10 @@
         <div class="modal-content-detalle">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                 <h2>📋 Detalle del Conteo</h2>
-                <div style="display: flex; align-items: center;">
+                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
                     <button onclick="cerrarModalDetalle()" class="btn-secondary" style="padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; background: var(--secondary); color: white;">✕ Cerrar</button>
                     <button onclick="capturarDetalle()" class="capture-btn" id="btn-capturar">
-                        📸 Capturar Imagen
+                        📸 Capturar Imagen HD
                     </button>
                 </div>
             </div>
@@ -358,7 +405,7 @@
     <div id="capture-notification" class="capture-notification">
         <span style="font-size: 1.5rem;">✅</span>
         <div>
-            <strong>¡Imagen copiada!</strong><br>
+            <strong>¡Imagen HD copiada!</strong><br>
             <small>Ahora puedes pegarla (Ctrl+V) en Word, Excel, WhatsApp, etc.</small>
         </div>
     </div>
@@ -371,20 +418,18 @@
         let conteoActualParaCaptura = null;
         let esAdmin = false;
 
-        // ✅ CORREGIDO: Agregar inicialización de datos y navegación
         document.addEventListener('DOMContentLoaded', () => {
             // Inicializar datos primero (sin verificar sesión aún)
             if (!localStorage.getItem('inventario_cajeros')) {
                 inicializarDatos();
             } else {
-                // Si ya existen datos, solo actualizar navegación
                 actualizarNavegacion();
             }
             
             // Ahora verificar sesión
             if (!verificarSesion()) return;
             
-            // 🆕 Determinar si es admin
+            // Determinar si es admin
             esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
             
             // Cargar contenido de la página
@@ -393,100 +438,94 @@
             // Mostrar usuario en header
             mostrarUsuarioActual();
             
-            // 🎯 Verificar si hay parámetro para abrir detalle automáticamente
+            // Verificar si hay parámetro para abrir detalle automáticamente
             const urlParams = new URLSearchParams(window.location.search);
             const conteoId = urlParams.get('ver');
             
             if (conteoId) {
-                // Esperar a que se cargue el historial y luego abrir el detalle
                 setTimeout(() => {
                     verDetalleConteo(conteoId);
-                    // Limpiar el parámetro de la URL sin recargar
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }, 500);
             }
         });
 
         function cargarHistorial() {
-    const historial = obtenerHistorialConteos();
-    const contenedor = document.getElementById('historial-list');
+            const historial = obtenerHistorialConteos();
+            const contenedor = document.getElementById('historial-list');
 
-    if (historial.length === 0) {
-        contenedor.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">📋</div>
-                <h3>No hay conteos registrados</h3>
-            </div>
-        `;
-        return;
-    }
+            if (historial.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No hay conteos registrados</h3>
+                    </div>
+                `;
+                return;
+            }
 
-    contenedor.innerHTML = historial.map(conteo => {
-        const fecha = new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES');
-        const resumen = conteo.resumen || {};
-        
-        // Determinar tipo de conteo
-        const esConteoCategoria = conteo.tipo === 'conteo_categoria';
-        const tipoLabel = esConteoCategoria ? '📊 Categoría' : '🚬 Cigarrillos';
-        const tipoColor = esConteoCategoria ? '#dbeafe' : '#d1fae5';
-        const tipoTextColor = esConteoCategoria ? '#1e40af' : '#065f46';
-        const tituloConteo = esConteoCategoria ? conteo.categoriaNombre : 'Conteo de Cigarrillos';
+            contenedor.innerHTML = historial.map(conteo => {
+                const fecha = new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES');
+                const resumen = conteo.resumen || {};
+                
+                const esConteoCategoria = conteo.tipo === 'conteo_categoria';
+                const tipoLabel = esConteoCategoria ? '📊 Categoría' : '🚬 Cigarrillos';
+                const tipoColor = esConteoCategoria ? '#dbeafe' : '#d1fae5';
+                const tipoTextColor = esConteoCategoria ? '#1e40af' : '#065f46';
+                const tituloConteo = esConteoCategoria ? conteo.categoriaNombre : 'Conteo de Cigarrillos';
 
-        // Generar botones de acción según permisos
-        let accionesHtml = `
-            <button onclick="verDetalleConteo('${conteo.id}')" class="btn-primary">Ver Detalle</button>
-        `;
-        
-        // Solo admin puede eliminar conteos
-        if (esAdmin) {
-            accionesHtml += `
-                <button onclick="eliminarConteo('${conteo.id}')" class="btn-delete-conteo" title="Eliminar conteo">🗑️</button>
-            `;
+                let accionesHtml = `
+                    <button onclick="verDetalleConteo('${conteo.id}')" class="btn-primary">Ver Detalle</button>
+                `;
+                
+                if (esAdmin) {
+                    accionesHtml += `
+                        <button onclick="eliminarConteo('${conteo.id}')" class="btn-delete-conteo" title="Eliminar conteo">🗑️</button>
+                    `;
+                }
+
+                return `
+                    <div class="conteo-card" id="conteo-card-${conteo.id}">
+                        <div class="conteo-header">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: ${tipoColor}; color: ${tipoTextColor}; font-weight: 600;">
+                                        ${tipoLabel}
+                                    </span>
+                                    <span style="font-size: 0.85rem; color: var(--text-light);">
+                                        ${tituloConteo}
+                                    </span>
+                                </div>
+                                <div class="conteo-fecha">${fecha}</div>
+                                <div class="conteo-cajero">👤 ${conteo.cajeroNombre} (${conteo.cajeroCodigo})</div>
+                            </div>
+                            <div class="conteo-actions">
+                                ${accionesHtml}
+                            </div>
+                        </div>
+                        <div class="conteo-resumen">
+                            <div class="resumen-item">
+                                <div class="resumen-num">${resumen.total || 0}</div>
+                                <div class="resumen-label">Total</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-num" style="color: var(--success);">${resumen.ok || 0}</div>
+                                <div class="resumen-label">OK</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-num" style="color: var(--primary);">${resumen.ingresar || 0}</div>
+                                <div class="resumen-label">Ingresar</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-num" style="color: var(--danger);">${resumen.egresar || 0}</div>
+                                <div class="resumen-label">Egresar</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        return `
-            <div class="conteo-card" id="conteo-card-${conteo.id}">
-                <div class="conteo-header">
-                    <div>
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                            <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: ${tipoColor}; color: ${tipoTextColor}; font-weight: 600;">
-                                ${tipoLabel}
-                            </span>
-                            <span style="font-size: 0.85rem; color: var(--text-light);">
-                                ${tituloConteo}
-                            </span>
-                        </div>
-                        <div class="conteo-fecha">${fecha}</div>
-                        <div class="conteo-cajero">👤 ${conteo.cajeroNombre} (${conteo.cajeroCodigo})</div>
-                    </div>
-                    <div class="conteo-actions">
-                        ${accionesHtml}
-                    </div>
-                </div>
-                <div class="conteo-resumen">
-                    <div class="resumen-item">
-                        <div class="resumen-num">${resumen.total || 0}</div>
-                        <div class="resumen-label">Total</div>
-                    </div>
-                    <div class="resumen-item">
-                        <div class="resumen-num" style="color: var(--success);">${resumen.ok || 0}</div>
-                        <div class="resumen-label">OK</div>
-                    </div>
-                    <div class="resumen-item">
-                        <div class="resumen-num" style="color: var(--primary);">${resumen.ingresar || 0}</div>
-                        <div class="resumen-label">Ingresar</div>
-                    </div>
-                    <div class="resumen-item">
-                        <div class="resumen-num" style="color: var(--danger);">${resumen.egresar || 0}</div>
-                        <div class="resumen-label">Egresar</div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-        // 🆕 NUEVA FUNCIÓN: Eliminar conteo (solo admin)
         function eliminarConteo(id) {
             if (!esAdmin) {
                 mostrarNotificacion('Solo el administrador puede eliminar conteos', 'error');
@@ -507,13 +546,9 @@
                 return;
             }
 
-            // Filtrar el conteo a eliminar
             const nuevoHistorial = historial.filter(c => c.id !== id);
-            
-            // Guardar nuevo historial
             guardarDatos('historial_conteos', nuevoHistorial);
             
-            // Registrar en auditoría
             registrarAuditoria({
                 cajeroId: cajeroActual.id,
                 cajeroNombre: cajeroActual.nombre,
@@ -526,7 +561,6 @@
                 stockNuevo: 0
             });
 
-            // Eliminar visualmente la tarjeta con animación
             const card = document.getElementById(`conteo-card-${id}`);
             if (card) {
                 card.style.transition = 'all 0.3s ease';
@@ -534,7 +568,6 @@
                 card.style.transform = 'translateX(-100%)';
                 setTimeout(() => {
                     card.remove();
-                    // Recargar si no quedan conteos
                     if (nuevoHistorial.length === 0) {
                         cargarHistorial();
                     }
@@ -545,217 +578,219 @@
         }
 
         function verDetalleConteo(id) {
-    const historial = obtenerHistorialConteos();
-    const conteo = historial.find(c => c.id === id);
+            const historial = obtenerHistorialConteos();
+            const conteo = historial.find(c => c.id === id);
 
-    if (!conteo) {
-        mostrarNotificacion('Conteo no encontrado', 'error');
-        return;
-    }
+            if (!conteo) {
+                mostrarNotificacion('Conteo no encontrado', 'error');
+                return;
+            }
 
-    conteoActualParaCaptura = conteo;
-    
-    const esConteoCategoria = conteo.tipo === 'conteo_categoria';
+            conteoActualParaCaptura = conteo;
+            const esConteoCategoria = conteo.tipo === 'conteo_categoria';
+            const productos = conteo.productos || [];
 
-    const detalleDiv = document.getElementById('detalle-conteo');
-    const productos = conteo.productos || [];
+            document.getElementById('capture-info').innerHTML = `
+                <div class="capture-info-item">
+                    <div class="capture-info-label">Tipo</div>
+                    <div class="capture-info-value">${esConteoCategoria ? '📊 Conteo Categoría' : '🚬 Conteo Cigarrillos'}</div>
+                </div>
+                <div class="capture-info-item">
+                    <div class="capture-info-label">${esConteoCategoria ? 'Categoría' : 'Cajero'}</div>
+                    <div class="capture-info-value">${esConteoCategoria ? conteo.categoriaNombre : conteo.cajeroNombre}</div>
+                </div>
+                <div class="capture-info-item">
+                    <div class="capture-info-label">Fecha</div>
+                    <div class="capture-info-value">${new Date(conteo.fechaFin || conteo.fecha).toLocaleDateString('es-ES')}</div>
+                </div>
+            `;
+            
+            document.getElementById('capture-fecha').textContent = new Date().toLocaleString('es-ES');
 
-    document.getElementById('capture-info').innerHTML = `
-        <div class="capture-info-item">
-            <div class="capture-info-label">Tipo</div>
-            <div class="capture-info-value">${esConteoCategoria ? '📊 Conteo Categoría' : '🚬 Conteo Cigarrillos'}</div>
-        </div>
-        <div class="capture-info-item">
-            <div class="capture-info-label">${esConteoCategoria ? 'Categoría' : 'Cajero'}</div>
-            <div class="capture-info-value">${esConteoCategoria ? conteo.categoriaNombre : conteo.cajeroNombre}</div>
-        </div>
-        <div class="capture-info-item">
-            <div class="capture-info-label">Fecha</div>
-            <div class="capture-info-value">${new Date(conteo.fechaFin || conteo.fecha).toLocaleDateString('es-ES')}</div>
-        </div>
-    `;
-    
-    document.getElementById('capture-fecha').textContent = new Date().toLocaleString('es-ES');
+            const detalleDiv = document.getElementById('detalle-conteo');
 
-    // Generar tabla según tipo de conteo
-    if (esConteoCategoria) {
-        // Tabla para conteo de categoría (simplificada: ID, Producto, Stock Sistema, Stock Real, Diferencia, Estado)
-        detalleDiv.innerHTML = `
-            <table class="detalle-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Producto</th>
-                        <th>Stock Sistema</th>
-                        <th>Stock Real</th>
-                        <th>Diferencia</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${productos.map(p => {
-                        const tieneReal = p.stockReal !== null && p.stockReal !== undefined;
-                        const diferencia = tieneReal ? p.stockReal - p.cantidad : 0;
-                        
-                        let estadoColor = '';
-                        switch(p.estado) {
-                            case 'OK': estadoColor = 'var(--success)'; break;
-                            case 'INGRESAR': estadoColor = 'var(--primary)'; break;
-                            case 'EGRESAR': estadoColor = 'var(--danger)'; break;
-                            default: estadoColor = 'var(--warning)';
-                        }
-                        
-                        return `
+            if (esConteoCategoria) {
+                detalleDiv.innerHTML = `
+                    <table class="detalle-table">
+                        <thead>
                             <tr>
-                                <td><code>${p.id}</code></td>
-                                <td style="text-align: left; font-weight: 500;">${p.nombre}</td>
-                                <td>${p.cantidad}</td>
-                                <td style="font-weight: 600; color: ${tieneReal ? 'var(--primary)' : 'var(--text-light)'};">
-                                    ${tieneReal ? p.stockReal : '-'}
-                                </td>
-                                <td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">
-                                    ${tieneReal ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
-                                </td>
-                                <td style="color: ${estadoColor}; font-weight: 600;">${p.estado || 'PENDIENTE'}</td>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Stock Sistema</th>
+                                <th>Stock Real</th>
+                                <th>Diferencia</th>
+                                <th>Estado</th>
                             </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        `;
-    } else {
-        // Tabla original para cigarrillos (con Bodega, Exhibición, Total)
-        detalleDiv.innerHTML = `
-            <table class="detalle-table">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Producto</th>
-                        <th>Stock Sistema</th>
-                        <th style="color: #8b5cf6;">🏭 Bodega</th>
-                        <th style="color: #06b6d4;">🏪 Exhibición</th>
-                        <th style="color: var(--primary);">📊 Total</th>
-                        <th>Diferencia</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${productos.map(p => {
-                        const diferencia = (p.conteoTotal !== null && p.conteoTotal !== undefined) ? p.conteoTotal - p.stockSistema : 0;
-                        const estado = p.estado || 'PENDIENTE';
-
-                        let estadoColor = '';
-                        switch(estado) {
-                            case 'OK': estadoColor = 'var(--success)'; break;
-                            case 'INGRESAR': estadoColor = 'var(--primary)'; break;
-                            case 'EGRESAR': estadoColor = 'var(--danger)'; break;
-                            default: estadoColor = 'var(--warning)';
-                        }
-
-                        return `
+                        </thead>
+                        <tbody>
+                            ${productos.map(p => {
+                                const tieneReal = p.stockReal !== null && p.stockReal !== undefined;
+                                const diferencia = tieneReal ? p.stockReal - p.cantidad : 0;
+                                
+                                let estadoColor = '';
+                                switch(p.estado) {
+                                    case 'OK': estadoColor = 'var(--success)'; break;
+                                    case 'INGRESAR': estadoColor = 'var(--primary)'; break;
+                                    case 'EGRESAR': estadoColor = 'var(--danger)'; break;
+                                    default: estadoColor = 'var(--warning)';
+                                }
+                                
+                                return `
+                                    <tr>
+                                        <td><code>${p.id}</code></td>
+                                        <td style="text-align: left; font-weight: 500;">${p.nombre}</td>
+                                        <td>${p.cantidad}</td>
+                                        <td style="font-weight: 600; color: ${tieneReal ? 'var(--primary)' : 'var(--text-light)'};">
+                                            ${tieneReal ? p.stockReal : '-'}
+                                        </td>
+                                        <td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">
+                                            ${tieneReal ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
+                                        </td>
+                                        <td style="color: ${estadoColor}; font-weight: 600;">${p.estado || 'PENDIENTE'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                detalleDiv.innerHTML = `
+                    <table class="detalle-table">
+                        <thead>
                             <tr>
-                                <td><code>${p.codigo}</code></td>
-                                <td style="text-align: left; font-weight: 500;">${p.nombre}</td>
-                                <td>${p.stockSistema}</td>
-                                <td class="col-bodega">${p.conteoBodega !== null && p.conteoBodega !== undefined ? p.conteoBodega : '-'}</td>
-                                <td class="col-exhibicion">${p.conteoExhibicion !== null && p.conteoExhibicion !== undefined ? p.conteoExhibicion : '-'}</td>
-                                <td class="col-total">${p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal : '-'}</td>
-                                <td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">
-                                    ${p.conteoTotal !== null && p.conteoTotal !== undefined ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
-                                </td>
-                                <td style="color: ${estadoColor}; font-weight: 600;">${estado}</td>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Stock Sistema</th>
+                                <th style="color: #7c3aed;">🏭 Bodega</th>
+                                <th style="color: #0891b2;">🏪 Exhibición</th>
+                                <th style="color: var(--primary);">📊 Total</th>
+                                <th>Diferencia</th>
+                                <th>Estado</th>
                             </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-        `;
-    }
+                        </thead>
+                        <tbody>
+                            ${productos.map(p => {
+                                const diferencia = (p.conteoTotal !== null && p.conteoTotal !== undefined) ? p.conteoTotal - p.stockSistema : 0;
+                                const estado = p.estado || 'PENDIENTE';
 
-    document.getElementById('modal-detalle').style.display = 'block';
-}
+                                let estadoColor = '';
+                                switch(estado) {
+                                    case 'OK': estadoColor = 'var(--success)'; break;
+                                    case 'INGRESAR': estadoColor = 'var(--primary)'; break;
+                                    case 'EGRESAR': estadoColor = 'var(--danger)'; break;
+                                    default: estadoColor = 'var(--warning)';
+                                }
 
+                                return `
+                                    <tr>
+                                        <td><code>${p.codigo}</code></td>
+                                        <td style="text-align: left; font-weight: 500;">${p.nombre}</td>
+                                        <td>${p.stockSistema}</td>
+                                        <td class="col-bodega">${p.conteoBodega !== null && p.conteoBodega !== undefined ? p.conteoBodega : '-'}</td>
+                                        <td class="col-exhibicion">${p.conteoExhibicion !== null && p.conteoExhibicion !== undefined ? p.conteoExhibicion : '-'}</td>
+                                        <td class="col-total">${p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal : '-'}</td>
+                                        <td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">
+                                            ${p.conteoTotal !== null && p.conteoTotal !== undefined ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
+                                        </td>
+                                        <td style="color: ${estadoColor}; font-weight: 600;">${estado}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            document.getElementById('modal-detalle').style.display = 'block';
+        }
+
+        // 🆕 FUNCIÓN DE CAPTURA HD MEJORADA
         async function capturarDetalle() {
-    const btn = document.getElementById('btn-capturar');
-    const captureArea = document.getElementById('capture-area');
-    const notification = document.getElementById('capture-notification');
-    
-    btn.classList.add('capturing');
-    btn.innerHTML = '⏳ Generando imagen HD...';
-    
-    try {
-        // 🎯 CONFIGURACIÓN ULTRA-HD
-        const canvas = await html2canvas(captureArea, {
-            // Escala 4x para máxima calidad (puedes subir a 5 o 6 si la PC lo aguanta)
-            scale: 4,
+            const btn = document.getElementById('btn-capturar');
+            const captureArea = document.getElementById('capture-area');
+            const notification = document.getElementById('capture-notification');
             
-            // Usar el tamaño real del elemento sin comprimir
-            useCORS: true,
-            allowTaint: true,
+            btn.classList.add('capturing');
+            btn.innerHTML = '⏳ Generando imagen HD...';
             
-            // Mejorar renderizado de texto
-            letterRendering: true,
-            
-            // Anti-aliasing máximo
-            imageTimeout: 0,
-            
-            // Forzar fondo blanco limpio
-            backgroundColor: '#ffffff',
-            
-            // Logging para debug (quitar en producción)
-            logging: false,
-            
-            // Optimizaciones de calidad
-            windowWidth: captureArea.scrollWidth * 2,
-            windowHeight: captureArea.scrollHeight * 2,
-            
-            // Mejorar bordes y líneas finas
-            onclone: function(clonedDoc) {
-                // Aplicar estilos de alta resolución al clon
-                const clonedArea = clonedDoc.getElementById('capture-area');
-                if (clonedArea) {
-                    clonedArea.style.transform = 'none';
-                    clonedArea.style.width = captureArea.offsetWidth + 'px';
-                }
-            }
-        });
-        
-        // 🎯 POST-PROCESAMIENTO: Suavizar la imagen
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        
-        // Convertir a blob con calidad máxima
-        canvas.toBlob(async (blob) => {
             try {
-                const item = new ClipboardItem({ 'image/png': blob });
-                await navigator.clipboard.write([item]);
+                // Scroll al inicio del área para capturar todo
+                captureArea.scrollIntoView({ behavior: 'instant', block: 'start' });
                 
-                notification.classList.add('show');
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 4000);
+                // Esperar a que el renderizado se estabilice
+                await new Promise(resolve => setTimeout(resolve, 150));
                 
-            } catch (clipboardError) {
-                console.error('Error clipboard:', clipboardError);
-                // Fallback: descargar imagen HD
-                const link = document.createElement('a');
-                link.download = `conteo_${new Date().toISOString().split('T')[0]}_HD.png`;
-                link.href = canvas.toDataURL('image/png', 1.0); // Calidad 100%
-                link.click();
+                // 🎯 CONFIGURACIÓN ULTRA-HD
+                const canvas = await html2canvas(captureArea, {
+                    // Escala 4x para máxima calidad
+                    scale: 4,
+                    
+                    // Mejorar renderizado de texto
+                    useCORS: true,
+                    allowTaint: true,
+                    letterRendering: true,
+                    
+                    // Anti-aliasing máximo
+                    imageTimeout: 0,
+                    
+                    // Fondo blanco limpio
+                    backgroundColor: '#ffffff',
+                    
+                    // Desactivar logging
+                    logging: false,
+                    
+                    // Dimensiones ampliadas
+                    windowWidth: captureArea.scrollWidth * 2,
+                    windowHeight: captureArea.scrollHeight * 2,
+                    
+                    // Callback de clonado para ajustes finos
+                    onclone: function(clonedDoc) {
+                        const clonedArea = clonedDoc.getElementById('capture-area');
+                        if (clonedArea) {
+                            clonedArea.style.transform = 'none';
+                            clonedArea.style.width = Math.max(captureArea.offsetWidth, 900) + 'px';
+                            // Forzar colores nítidos
+                            clonedArea.style.color = '#1e293b';
+                        }
+                    }
+                });
                 
-                mostrarNotificacion('Imagen HD descargada (no se pudo copiar al portapapeles)', 'warning');
+                // 🎯 POST-PROCESAMIENTO: Suavizar la imagen
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                // Convertir a blob con calidad máxima
+                canvas.toBlob(async (blob) => {
+                    try {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        await navigator.clipboard.write([item]);
+                        
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 4000);
+                        
+                    } catch (clipboardError) {
+                        console.error('Error clipboard:', clipboardError);
+                        // Fallback: descargar imagen HD
+                        const link = document.createElement('a');
+                        link.download = `conteo_${new Date().toISOString().split('T')[0]}_HD.png`;
+                        link.href = canvas.toDataURL('image/png', 1.0);
+                        link.click();
+                        
+                        mostrarNotificacion('Imagen HD descargada (no se pudo copiar al portapapeles)', 'warning');
+                    }
+                }, 'image/png', 1.0);
+                
+            } catch (error) {
+                console.error('Error al capturar:', error);
+                mostrarNotificacion('Error al generar la imagen HD', 'error');
+            } finally {
+                btn.classList.remove('capturing');
+                btn.innerHTML = '📸 Capturar Imagen HD';
             }
-        }, 'image/png', 1.0); // Calidad máxima PNG
-        
-    } catch (error) {
-        console.error('Error al capturar:', error);
-        mostrarNotificacion('Error al generar la imagen HD', 'error');
-    } finally {
-        btn.classList.remove('capturing');
-        btn.innerHTML = '📸 Capturar Imagen HD';
-    }
-}
+        }
 
         function cerrarModalDetalle() {
             document.getElementById('modal-detalle').style.display = 'none';
@@ -781,13 +816,15 @@
                     'Fecha Conteo': new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES'),
                     'Cajero': conteo.cajeroNombre,
                     'Código Cajero': conteo.cajeroCodigo,
-                    'Código Producto': p.codigo,
+                    'Código Producto': p.codigo || p.id,
                     'Producto': p.nombre,
-                    'Stock Sistema': p.stockSistema,
+                    'Stock Sistema': p.stockSistema || p.cantidad,
                     'Conteo Bodega': p.conteoBodega !== null && p.conteoBodega !== undefined ? p.conteoBodega : '',
                     'Conteo Exhibición': p.conteoExhibicion !== null && p.conteoExhibicion !== undefined ? p.conteoExhibicion : '',
                     'Conteo Total': p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal : '',
-                    'Diferencia': p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal - p.stockSistema : '',
+                    'Stock Real': p.stockReal !== null && p.stockReal !== undefined ? p.stockReal : '',
+                    'Diferencia': p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal - (p.stockSistema || p.cantidad) : 
+                                  (p.stockReal !== null && p.stockReal !== undefined ? p.stockReal - p.cantidad : ''),
                     'Estado': p.estado || 'PENDIENTE'
                 }));
             });
@@ -799,12 +836,12 @@
                 { wch: 20 }, { wch: 20 }, { wch: 15 },
                 { wch: 15 }, { wch: 35 }, { wch: 15 },
                 { wch: 15 }, { wch: 18 }, { wch: 15 },
-                { wch: 12 }, { wch: 12 }
+                { wch: 12 }, { wch: 12 }, { wch: 12 }
             ];
 
             XLSX.utils.book_append_sheet(wb, ws, 'Historial Conteos');
 
-            XLSX.writeFile(wb, `historial_conteos_cigarrillos_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.writeFile(wb, `historial_conteos_${new Date().toISOString().split('T')[0]}.xlsx`);
             mostrarNotificacion('Historial exportado correctamente', 'success');
         }
     </script>
