@@ -120,84 +120,68 @@
             text-rendering: optimizeLegibility;
             background: #ffffff !important;
             padding: 40px;
-            /* 🎯 ANCHO FIJO PARA PDF VERTICAL A4 */
-            max-width: 800px !important;
-            min-width: 800px !important;
-            width: 800px !important;
+            min-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            box-sizing: border-box;
         }
 
         .detalle-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            font-size: 0.9rem !important; /* 🎯 MÁS COMPACTO */
+            font-size: 1rem !important;
             margin-top: 20px;
-            table-layout: fixed; /*COLUMNAS DE ANCHO FIJO */
         }
 
         .detalle-table th {
             background: #f8fafc !important;
-            padding: 10px 8px !important; /* 🎯 MÁS COMPACTO */
+            padding: 16px 12px !important;
             text-align: center;
             font-weight: 700 !important;
             color: #475569 !important;
             text-transform: uppercase;
-            font-size: 0.8rem !important;
+            font-size: 0.85rem !important;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid #e2e8f0 !important;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            border-bottom: 3px solid #e2e8f0 !important;
         }
 
         .detalle-table td {
-            padding: 10px 8px !important; /* 🎯 MÁS COMPACTO */
+            padding: 14px 12px !important;
             border-bottom: 1px solid #e2e8f0;
             text-align: center;
             font-weight: 500;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .detalle-table td:first-child {
             text-align: left;
         }
 
-        /* 🎯 ANCHOS ESPECÍFICOS PARA COLUMNAS */
-        .detalle-table th:nth-child(1), .detalle-table td:nth-child(1) { width: 12%; } /* Código/ID */
-        .detalle-table th:nth-child(2), .detalle-table td:nth-child(2) { width: 28%; } /* Producto */
-        .detalle-table th:nth-child(3), .detalle-table td:nth-child(3) { width: 12%; } /* Stock Sist */
-        .detalle-table th:nth-child(4), .detalle-table td:nth-child(4) { width: 10%; } /* Bodega */
-        .detalle-table th:nth-child(5), .detalle-table td:nth-child(5) { width: 12%; } /* Exhibición */
-        .detalle-table th:nth-child(6), .detalle-table td:nth-child(6) { width: 10%; } /* Total */
-        .detalle-table th:nth-child(7), .detalle-table td:nth-child(7) { width: 10%; } /* Diferencia */
-        .detalle-table th:nth-child(8), .detalle-table td:nth-child(8) { width: 10%; } /* Estado */
-
         .detalle-table code {
-            font-family: 'SF Mono', Monaco, monospace !important;
-            font-size: 0.75rem !important; /* 🎯 MÁS PEQUEÑO */
-            padding: 3px 6px !important;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace !important;
+            font-size: 0.9rem !important;
+            padding: 6px 10px !important;
             background: #f1f5f9 !important;
             border: 1px solid #e2e8f0 !important;
-            border-radius: 4px !important;
+            border-radius: 6px !important;
             font-weight: 600 !important;
         }
 
         .col-bodega { 
             color: #7c3aed !important; 
             font-weight: 700 !important;
+            font-size: 1.05rem !important;
         }
 
         .col-exhibicion { 
             color: #0891b2 !important; 
             font-weight: 700 !important;
+            font-size: 1.05rem !important;
         }
 
         .col-total { 
             color: #2563eb !important; 
             font-weight: 800 !important;
+            font-size: 1.1rem !important;
         }
 
         .capture-header {
@@ -208,7 +192,7 @@
         }
 
         .capture-header h2 {
-            font-size: 1.8rem !important; /* 🎯 LIGERAMENTE MÁS PEQUEÑO */
+            font-size: 2rem !important;
             font-weight: 800 !important;
             color: #1e293b !important;
             letter-spacing: -0.5px;
@@ -220,10 +204,10 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 20px;
-            padding: 20px !important; /* 🎯 MÁS COMPACTO */
+            padding: 24px !important;
             background: var(--bg);
             border-radius: 8px;
-            font-size: 0.95rem !important;
+            font-size: 1rem !important;
         }
 
         .capture-info-item {
@@ -231,7 +215,7 @@
         }
 
         .capture-info-label {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -239,7 +223,7 @@
 
         .capture-info-value {
             font-weight: 700 !important;
-            font-size: 1.1rem !important;
+            font-size: 1.2rem !important;
             color: var(--text);
             margin-top: 4px;
         }
@@ -279,34 +263,6 @@
             pointer-events: none;
         }
 
-        .pdf-btn {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .pdf-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.4);
-        }
-
-        .pdf-btn:active {
-            transform: translateY(0);
-        }
-
-        .pdf-btn.generating {
-            background: #f59e0b;
-            pointer-events: none;
-        }
-
         .capture-notification {
             position: fixed;
             top: 20px;
@@ -324,26 +280,6 @@
         }
 
         .capture-notification.show {
-            display: flex;
-        }
-
-        .pdf-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #ef4444;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            z-index: 99999;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            animation: slideInRight 0.3s ease;
-        }
-
-        .pdf-notification.show {
             display: flex;
         }
 
@@ -377,9 +313,7 @@
             }
 
             #capture-area {
-                min-width: auto !important;
-                max-width: 100% !important;
-                width: 100% !important;
+                min-width: auto;
                 padding: 20px;
             }
 
@@ -397,7 +331,7 @@
                 width: 100%;
             }
 
-            .capture-btn, .pdf-btn {
+            .capture-btn {
                 width: 100%;
                 justify-content: center;
                 margin-left: 0;
@@ -430,29 +364,39 @@
                 <button onclick="exportarHistorial()" class="btn-export">📥 Exportar Todo</button>
             </div>
 
-            <div id="historial-list" class="historial-list"></div>
+            <div id="historial-list" class="historial-list">
+                <!-- Se carga dinámicamente -->
+            </div>
         </main>
     </div>
 
+    <!-- Modal de Detalle -->
     <div id="modal-detalle" class="modal-detalle">
         <div class="modal-content-detalle">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                 <h2>📋 Detalle del Conteo</h2>
                 <div class="modal-actions">
                     <button onclick="cerrarModalDetalle()" class="btn-secondary" style="padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; background: var(--secondary); color: white;">✕ Cerrar</button>
-                    <button onclick="capturarDetalle()" class="capture-btn" id="btn-capturar">📸 Capturar Imagen HD</button>
-                    <button onclick="exportarPDF()" class="pdf-btn" id="btn-pdf">📄 Exportar PDF</button>
+                    <button onclick="capturarDetalle()" class="capture-btn" id="btn-capturar">
+                        📸 Capturar Imagen HD
+                    </button>
                 </div>
             </div>
             
+            <!-- ÁREA QUE SE CAPTURARÁ -->
             <div id="capture-area">
                 <div class="capture-header">
                     <h2>🚬 CONTEO DE CIGARRILLOS</h2>
                     <p style="color: var(--text-light);">Reporte de Inventario Físico</p>
                 </div>
                 
-                <div class="capture-info" id="capture-info"></div>
-                <div id="detalle-conteo"></div>
+                <div class="capture-info" id="capture-info">
+                    <!-- Se llena dinámicamente -->
+                </div>
+                
+                <div id="detalle-conteo">
+                    <!-- Se carga dinámicamente -->
+                </div>
                 
                 <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); text-align: center; color: var(--text-light); font-size: 0.85rem;">
                     Generado el <span id="capture-fecha"></span> • Sistema de Inventario
@@ -461,6 +405,7 @@
         </div>
     </div>
 
+    <!-- Notificación de captura -->
     <div id="capture-notification" class="capture-notification">
         <span style="font-size: 1.5rem;">✅</span>
         <div>
@@ -469,16 +414,8 @@
         </div>
     </div>
 
-    <div id="pdf-notification" class="pdf-notification">
-        <span style="font-size: 1.5rem;">📄</span>
-        <div>
-            <strong>¡PDF generado!</strong><br>
-            <small>Descargando archivo...</small>
-        </div>
-    </div>
-
+    <!-- Librerías -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="js/app.js"></script>
     <script>
@@ -486,19 +423,29 @@
         let esAdmin = false;
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar datos primero (sin verificar sesión aún)
             if (!localStorage.getItem('inventario_cajeros')) {
                 inicializarDatos();
             } else {
                 actualizarNavegacion();
             }
             
+            // Ahora verificar sesión
             if (!verificarSesion()) return;
+            
+            // Determinar si es admin
             esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
+            
+            // Cargar contenido de la página
             cargarHistorial();
+            
+            // Mostrar usuario en header
             mostrarUsuarioActual();
             
+            // Verificar si hay parámetro para abrir detalle automáticamente
             const urlParams = new URLSearchParams(window.location.search);
             const conteoId = urlParams.get('ver');
+            
             if (conteoId) {
                 setTimeout(() => {
                     verDetalleConteo(conteoId);
@@ -524,15 +471,21 @@
             contenedor.innerHTML = historial.map(conteo => {
                 const fecha = new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES');
                 const resumen = conteo.resumen || {};
+                
                 const esConteoCategoria = conteo.tipo === 'conteo_categoria';
                 const tipoLabel = esConteoCategoria ? '📊 Categoría' : '🚬 Cigarrillos';
                 const tipoColor = esConteoCategoria ? '#dbeafe' : '#d1fae5';
                 const tipoTextColor = esConteoCategoria ? '#1e40af' : '#065f46';
                 const tituloConteo = esConteoCategoria ? conteo.categoriaNombre : 'Conteo de Cigarrillos';
 
-                let accionesHtml = `<button onclick="verDetalleConteo('${conteo.id}')" class="btn-primary">Ver Detalle</button>`;
+                let accionesHtml = `
+                    <button onclick="verDetalleConteo('${conteo.id}')" class="btn-primary">Ver Detalle</button>
+                `;
+                
                 if (esAdmin) {
-                    accionesHtml += `<button onclick="eliminarConteo('${conteo.id}')" class="btn-delete-conteo" title="Eliminar conteo">🗑️</button>`;
+                    accionesHtml += `
+                        <button onclick="eliminarConteo('${conteo.id}')" class="btn-delete-conteo" title="Eliminar conteo">🗑️</button>
+                    `;
                 }
 
                 return `
@@ -540,19 +493,37 @@
                         <div class="conteo-header">
                             <div>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                    <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: ${tipoColor}; color: ${tipoTextColor}; font-weight: 600;">${tipoLabel}</span>
-                                    <span style="font-size: 0.85rem; color: var(--text-light);">${tituloConteo}</span>
+                                    <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: ${tipoColor}; color: ${tipoTextColor}; font-weight: 600;">
+                                        ${tipoLabel}
+                                    </span>
+                                    <span style="font-size: 0.85rem; color: var(--text-light);">
+                                        ${tituloConteo}
+                                    </span>
                                 </div>
                                 <div class="conteo-fecha">${fecha}</div>
                                 <div class="conteo-cajero">👤 ${conteo.cajeroNombre} (${conteo.cajeroCodigo})</div>
                             </div>
-                            <div class="conteo-actions">${accionesHtml}</div>
+                            <div class="conteo-actions">
+                                ${accionesHtml}
+                            </div>
                         </div>
                         <div class="conteo-resumen">
-                            <div class="resumen-item"><div class="resumen-num">${resumen.total || 0}</div><div class="resumen-label">Total</div></div>
-                            <div class="resumen-item"><div class="resumen-num" style="color: var(--success);">${resumen.ok || 0}</div><div class="resumen-label">OK</div></div>
-                            <div class="resumen-item"><div class="resumen-num" style="color: var(--primary);">${resumen.ingresar || 0}</div><div class="resumen-label">Ingresar</div></div>
-                            <div class="resumen-item"><div class="resumen-num" style="color: var(--danger);">${resumen.egresar || 0}</div><div class="resumen-label">Egresar</div></div>
+                            <div class="resumen-item">
+                                <div class="resumen-num">${resumen.total || 0}</div>
+                                <div class="resumen-label">Total</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-num" style="color: var(--success);">${resumen.ok || 0}</div>
+                                <div class="resumen-label">OK</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-num" style="color: var(--primary);">${resumen.ingresar || 0}</div>
+                                <div class="resumen-label">Ingresar</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-num" style="color: var(--danger);">${resumen.egresar || 0}</div>
+                                <div class="resumen-label">Egresar</div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -564,14 +535,24 @@
                 mostrarNotificacion('Solo el administrador puede eliminar conteos', 'error');
                 return;
             }
+
             const historial = obtenerHistorialConteos();
             const conteo = historial.find(c => c.id === id);
-            if (!conteo) return;
+            
+            if (!conteo) {
+                mostrarNotificacion('Conteo no encontrado', 'error');
+                return;
+            }
+
             const fecha = new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES');
-            if (!confirm(`⚠️ ¿Eliminar este conteo permanentemente?\n\n📅 Fecha: ${fecha}\n👤 Cajero: ${conteo.cajeroNombre}\n📦 Productos: ${conteo.productos?.length || 0}\n\nEsta acción no se puede deshacer.`)) return;
+            
+            if (!confirm(`⚠️ ¿Eliminar este conteo permanentemente?\n\n📅 Fecha: ${fecha}\n👤 Cajero: ${conteo.cajeroNombre}\n📦 Productos: ${conteo.productos?.length || 0}\n\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
 
             const nuevoHistorial = historial.filter(c => c.id !== id);
             guardarDatos('historial_conteos', nuevoHistorial);
+            
             registrarAuditoria({
                 cajeroId: cajeroActual.id,
                 cajeroNombre: cajeroActual.nombre,
@@ -591,56 +572,139 @@
                 card.style.transform = 'translateX(-100%)';
                 setTimeout(() => {
                     card.remove();
-                    if (nuevoHistorial.length === 0) cargarHistorial();
+                    if (nuevoHistorial.length === 0) {
+                        cargarHistorial();
+                    }
                 }, 300);
             }
+
             mostrarNotificacion('Conteo eliminado correctamente', 'success');
         }
 
         function verDetalleConteo(id) {
             const historial = obtenerHistorialConteos();
             const conteo = historial.find(c => c.id === id);
+
             if (!conteo) {
                 mostrarNotificacion('Conteo no encontrado', 'error');
                 return;
             }
+
             conteoActualParaCaptura = conteo;
             const esConteoCategoria = conteo.tipo === 'conteo_categoria';
             const productos = conteo.productos || [];
 
             document.getElementById('capture-info').innerHTML = `
-                <div class="capture-info-item"><div class="capture-info-label">Tipo</div><div class="capture-info-value">${esConteoCategoria ? '📊 Conteo Categoría' : '🚬 Conteo Cigarrillos'}</div></div>
-                <div class="capture-info-item"><div class="capture-info-label">${esConteoCategoria ? 'Categoría' : 'Cajero'}</div><div class="capture-info-value">${esConteoCategoria ? conteo.categoriaNombre : conteo.cajeroNombre}</div></div>
-                <div class="capture-info-item"><div class="capture-info-label">Fecha</div><div class="capture-info-value">${new Date(conteo.fechaFin || conteo.fecha).toLocaleDateString('es-ES')}</div></div>
+                <div class="capture-info-item">
+                    <div class="capture-info-label">Tipo</div>
+                    <div class="capture-info-value">${esConteoCategoria ? '📊 Conteo Categoría' : '🚬 Conteo Cigarrillos'}</div>
+                </div>
+                <div class="capture-info-item">
+                    <div class="capture-info-label">${esConteoCategoria ? 'Categoría' : 'Cajero'}</div>
+                    <div class="capture-info-value">${esConteoCategoria ? conteo.categoriaNombre : conteo.cajeroNombre}</div>
+                </div>
+                <div class="capture-info-item">
+                    <div class="capture-info-label">Fecha</div>
+                    <div class="capture-info-value">${new Date(conteo.fechaFin || conteo.fecha).toLocaleDateString('es-ES')}</div>
+                </div>
             `;
+            
             document.getElementById('capture-fecha').textContent = new Date().toLocaleString('es-ES');
 
             const detalleDiv = document.getElementById('detalle-conteo');
+
             if (esConteoCategoria) {
                 detalleDiv.innerHTML = `
                     <table class="detalle-table">
-                        <thead><tr><th>ID</th><th>Producto</th><th>Stock Sistema</th><th>Stock Real</th><th>Diferencia</th><th>Estado</th></tr></thead>
-                        <tbody>${productos.map(p => {
-                            const tieneReal = p.stockReal !== null && p.stockReal !== undefined;
-                            const diferencia = tieneReal ? p.stockReal - p.cantidad : 0;
-                            let estadoColor = '';
-                            switch(p.estado) { case 'OK': estadoColor = 'var(--success)'; break; case 'INGRESAR': estadoColor = 'var(--primary)'; break; case 'EGRESAR': estadoColor = 'var(--danger)'; break; default: estadoColor = 'var(--warning)'; }
-                            return `<tr><td><code>${p.id}</code></td><td style="text-align: left; font-weight: 500;">${p.nombre}</td><td>${p.cantidad}</td><td style="font-weight: 600; color: ${tieneReal ? 'var(--primary)' : 'var(--text-light)'};">${tieneReal ? p.stockReal : '-'}</td><td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">${tieneReal ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}</td><td style="color: ${estadoColor}; font-weight: 600;">${p.estado || 'PENDIENTE'}</td></tr>`;
-                        }).join('')}</tbody>
-                    </table>`;
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Stock Sistema</th>
+                                <th>Stock Real</th>
+                                <th>Diferencia</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${productos.map(p => {
+                                const tieneReal = p.stockReal !== null && p.stockReal !== undefined;
+                                const diferencia = tieneReal ? p.stockReal - p.cantidad : 0;
+                                
+                                let estadoColor = '';
+                                switch(p.estado) {
+                                    case 'OK': estadoColor = 'var(--success)'; break;
+                                    case 'INGRESAR': estadoColor = 'var(--primary)'; break;
+                                    case 'EGRESAR': estadoColor = 'var(--danger)'; break;
+                                    default: estadoColor = 'var(--warning)';
+                                }
+                                
+                                return `
+                                    <tr>
+                                        <td><code>${p.id}</code></td>
+                                        <td style="text-align: left; font-weight: 500;">${p.nombre}</td>
+                                        <td>${p.cantidad}</td>
+                                        <td style="font-weight: 600; color: ${tieneReal ? 'var(--primary)' : 'var(--text-light)'};">
+                                            ${tieneReal ? p.stockReal : '-'}
+                                        </td>
+                                        <td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">
+                                            ${tieneReal ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
+                                        </td>
+                                        <td style="color: ${estadoColor}; font-weight: 600;">${p.estado || 'PENDIENTE'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
             } else {
                 detalleDiv.innerHTML = `
                     <table class="detalle-table">
-                        <thead><tr><th>Código</th><th>Producto</th><th>Stock Sistema</th><th style="color: #7c3aed;">🏭 Bodega</th><th style="color: #0891b2;">🏪 Exhibición</th><th style="color: var(--primary);">📊 Total</th><th>Diferencia</th><th>Estado</th></tr></thead>
-                        <tbody>${productos.map(p => {
-                            const diferencia = (p.conteoTotal !== null && p.conteoTotal !== undefined) ? p.conteoTotal - p.stockSistema : 0;
-                            const estado = p.estado || 'PENDIENTE';
-                            let estadoColor = '';
-                            switch(estado) { case 'OK': estadoColor = 'var(--success)'; break; case 'INGRESAR': estadoColor = 'var(--primary)'; break; case 'EGRESAR': estadoColor = 'var(--danger)'; break; default: estadoColor = 'var(--warning)'; }
-                            return `<tr><td><code>${p.codigo}</code></td><td style="text-align: left; font-weight: 500;">${p.nombre}</td><td>${p.stockSistema}</td><td class="col-bodega">${p.conteoBodega !== null && p.conteoBodega !== undefined ? p.conteoBodega : '-'}</td><td class="col-exhibicion">${p.conteoExhibicion !== null && p.conteoExhibicion !== undefined ? p.conteoExhibicion : '-'}</td><td class="col-total">${p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal : '-'}</td><td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">${p.conteoTotal !== null && p.conteoTotal !== undefined ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}</td><td style="color: ${estadoColor}; font-weight: 600;">${estado}</td></tr>`;
-                        }).join('')}</tbody>
-                    </table>`;
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Stock Sistema</th>
+                                <th style="color: #7c3aed;">🏭 Bodega</th>
+                                <th style="color: #0891b2;">🏪 Exhibición</th>
+                                <th style="color: var(--primary);">📊 Total</th>
+                                <th>Diferencia</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${productos.map(p => {
+                                const diferencia = (p.conteoTotal !== null && p.conteoTotal !== undefined) ? p.conteoTotal - p.stockSistema : 0;
+                                const estado = p.estado || 'PENDIENTE';
+
+                                let estadoColor = '';
+                                switch(estado) {
+                                    case 'OK': estadoColor = 'var(--success)'; break;
+                                    case 'INGRESAR': estadoColor = 'var(--primary)'; break;
+                                    case 'EGRESAR': estadoColor = 'var(--danger)'; break;
+                                    default: estadoColor = 'var(--warning)';
+                                }
+
+                                return `
+                                    <tr>
+                                        <td><code>${p.codigo}</code></td>
+                                        <td style="text-align: left; font-weight: 500;">${p.nombre}</td>
+                                        <td>${p.stockSistema}</td>
+                                        <td class="col-bodega">${p.conteoBodega !== null && p.conteoBodega !== undefined ? p.conteoBodega : '-'}</td>
+                                        <td class="col-exhibicion">${p.conteoExhibicion !== null && p.conteoExhibicion !== undefined ? p.conteoExhibicion : '-'}</td>
+                                        <td class="col-total">${p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal : '-'}</td>
+                                        <td style="font-weight: 700; color: ${diferencia > 0 ? 'var(--success)' : (diferencia < 0 ? 'var(--danger)' : 'var(--text-light)')}">
+                                            ${p.conteoTotal !== null && p.conteoTotal !== undefined ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
+                                        </td>
+                                        <td style="color: ${estadoColor}; font-weight: 600;">${estado}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
             }
+
             document.getElementById('modal-detalle').style.display = 'block';
         }
 
@@ -648,37 +712,60 @@
             const btn = document.getElementById('btn-capturar');
             const captureArea = document.getElementById('capture-area');
             const notification = document.getElementById('capture-notification');
+            
             btn.classList.add('capturing');
             btn.innerHTML = '⏳ Generando imagen HD...';
+            
             try {
                 captureArea.scrollIntoView({ behavior: 'instant', block: 'start' });
                 await new Promise(resolve => setTimeout(resolve, 150));
+                
                 const canvas = await html2canvas(captureArea, {
-                    scale: 4, useCORS: true, allowTaint: true, letterRendering: true, imageTimeout: 0,
-                    backgroundColor: '#ffffff', logging: false,
-                    windowWidth: captureArea.scrollWidth * 2, windowHeight: captureArea.scrollHeight * 2,
+                    scale: 4,
+                    useCORS: true,
+                    allowTaint: true,
+                    letterRendering: true,
+                    imageTimeout: 0,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    windowWidth: captureArea.scrollWidth * 2,
+                    windowHeight: captureArea.scrollHeight * 2,
                     onclone: function(clonedDoc) {
                         const clonedArea = clonedDoc.getElementById('capture-area');
-                        if (clonedArea) { clonedArea.style.transform = 'none'; clonedArea.style.width = Math.max(captureArea.offsetWidth, 900) + 'px'; clonedArea.style.color = '#1e293b'; }
+                        if (clonedArea) {
+                            clonedArea.style.transform = 'none';
+                            clonedArea.style.width = Math.max(captureArea.offsetWidth, 900) + 'px';
+                            clonedArea.style.color = '#1e293b';
+                        }
                     }
                 });
+                
                 const ctx = canvas.getContext('2d');
-                ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
                 canvas.toBlob(async (blob) => {
                     try {
                         const item = new ClipboardItem({ 'image/png': blob });
                         await navigator.clipboard.write([item]);
+                        
                         notification.classList.add('show');
-                        setTimeout(() => notification.classList.remove('show'), 4000);
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 4000);
+                        
                     } catch (clipboardError) {
                         const link = document.createElement('a');
                         link.download = `conteo_${new Date().toISOString().split('T')[0]}_HD.png`;
                         link.href = canvas.toDataURL('image/png', 1.0);
                         link.click();
+                        
                         mostrarNotificacion('Imagen HD descargada (no se pudo copiar al portapapeles)', 'warning');
                     }
                 }, 'image/png', 1.0);
+                
             } catch (error) {
+                console.error('Error al capturar:', error);
                 mostrarNotificacion('Error al generar la imagen HD', 'error');
             } finally {
                 btn.classList.remove('capturing');
@@ -686,136 +773,6 @@
             }
         }
 
-        async function exportarPDF() {
-    const { jsPDF } = window.jspdf;
-    const btn = document.getElementById('btn-pdf');
-    const notification = document.getElementById('pdf-notification');
-    const captureArea = document.getElementById('capture-area');
-    
-    if (!conteoActualParaCaptura) {
-        mostrarNotificacion('No hay conteo cargado', 'error');
-        return;
-    }
-    
-    btn.classList.add('generating');
-    btn.innerHTML = '⏳ Generando PDF...';
-    
-    try {
-        captureArea.scrollIntoView({ behavior: 'instant', block: 'start' });
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // Capturar con ancho fijo para PDF vertical
-        const canvas = await html2canvas(captureArea, {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            letterRendering: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            width: 800,
-            height: captureArea.scrollHeight,
-            windowWidth: 800,
-            x: 0,
-            y: 0,
-            onclone: function(clonedDoc) {
-                const clonedArea = clonedDoc.getElementById('capture-area');
-                if (clonedArea) {
-                    clonedArea.style.transform = 'none';
-                    clonedArea.style.width = '800px';
-                    clonedArea.style.maxWidth = '800px';
-                    clonedArea.style.minWidth = '800px';
-                    clonedArea.style.margin = '0';
-                    clonedArea.style.padding = '20px';
-                }
-            }
-        });
-        
-        // Crear PDF vertical A4
-        const pdf = new jsPDF({
-            orientation: 'p',
-            unit: 'mm',
-            format: 'a4',
-            compress: true
-        });
-        
-        const imgData = canvas.toDataURL('image/png', 1.0);
-        
-        // Dimensiones página A4 vertical
-        const pageWidth = 210;
-        const pageHeight = 297;
-        const margin = 10;
-        
-        // Área disponible
-        const availableWidth = pageWidth - (margin * 2);
-        const availableHeight = pageHeight - (margin * 2);
-        
-        // Convertir dimensiones de imagen a mm
-        const pxToMm = 0.264583;
-        const imgWidthMm = canvas.width * pxToMm;
-        const imgHeightMm = canvas.height * pxToMm;
-        
-        // Calcular escala para ajustar al ancho
-        const scale = availableWidth / imgWidthMm;
-        const finalWidth = availableWidth;
-        const finalHeight = imgHeightMm * scale;
-        
-        // 🎯 LÓGICA DE PAGINACIÓN CORREGIDA
-        // Si cabe en una sola página
-        if (finalHeight <= availableHeight) {
-            pdf.addImage(imgData, 'PNG', margin, margin, finalWidth, finalHeight);
-        } else {
-            // Necesita múltiples páginas
-            let currentY = 0; // Posición actual en la imagen (en mm)
-            let isFirstPage = true;
-            
-            while (currentY < finalHeight) {
-                // Agregar nueva página (excepto la primera)
-                if (!isFirstPage) {
-                    pdf.addPage();
-                }
-                isFirstPage = false;
-                
-                // Calcular qué porción de la imagen mostrar
-                const sourceY = currentY / scale / pxToMm; // Convertir a pixels
-                const remainingHeight = finalHeight - currentY;
-                const drawHeight = Math.min(remainingHeight, availableHeight);
-                
-                // Dibujar la sección correspondiente
-                pdf.addImage(
-                    imgData,
-                    'PNG',
-                    margin,                    // x en PDF
-                    margin,                    // y en PDF
-                    finalWidth,                // ancho en PDF
-                    drawHeight,                // alto en PDF
-                    undefined,                 // alias
-                    'FAST',                    // compresión
-                    0                          // rotación
-                );
-                
-                currentY += availableHeight;
-            }
-        }
-        
-        // Generar nombre de archivo
-        const esConteoCategoria = conteoActualParaCaptura.tipo === 'conteo_categoria';
-        const tipoNombre = esConteoCategoria ? 'categoria' : 'cigarrillos';
-        const fecha = new Date(conteoActualParaCaptura.fechaFin || conteoActualParaCaptura.fecha).toISOString().split('T')[0];
-        const cajeroCodigo = conteoActualParaCaptura.cajeroCodigo;
-        
-        pdf.save(`conteo_${tipoNombre}_${fecha}_${cajeroCodigo}.pdf`);
-        
-        notification.classList.add('show');
-        setTimeout(() => notification.classList.remove('show'), 4000);
-        
-    } catch (error) {
-        console.error('Error al generar PDF:', error);
-        mostrarNotificacion('Error al generar el PDF', 'error');
-    } finally {
-        btn.classList.remove('generating');
-        btn.innerHTML = '📄 Exportar PDF';
-    }
-}
         function cerrarModalDetalle() {
             document.getElementById('modal-detalle').style.display = 'none';
             conteoActualParaCaptura = null;
@@ -823,7 +780,9 @@
 
         window.onclick = function(event) {
             const modal = document.getElementById('modal-detalle');
-            if (event.target === modal) modal.style.display = 'none';
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
         }
 
         function exportarHistorial() {
@@ -832,20 +791,37 @@
                 mostrarNotificacion('No hay datos para exportar', 'error');
                 return;
             }
-            const datos = historial.flatMap(conteo => (conteo.productos || []).map(p => ({
-                'Fecha Conteo': new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES'),
-                'Cajero': conteo.cajeroNombre, 'Código Cajero': conteo.cajeroCodigo,
-                'Código Producto': p.codigo || p.id, 'Producto': p.nombre,
-                'Stock Sistema': p.stockSistema || p.cantidad,
-                'Conteo Bodega': p.conteoBodega ?? '', 'Conteo Exhibición': p.conteoExhibicion ?? '',
-                'Conteo Total': p.conteoTotal ?? '', 'Stock Real': p.stockReal ?? '',
-                'Diferencia': p.conteoTotal !== null ? p.conteoTotal - (p.stockSistema || p.cantidad) : (p.stockReal !== null ? p.stockReal - p.cantidad : ''),
-                'Estado': p.estado || 'PENDIENTE'
-            })));
+
+            const datos = historial.flatMap(conteo => {
+                return (conteo.productos || []).map(p => ({
+                    'Fecha Conteo': new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES'),
+                    'Cajero': conteo.cajeroNombre,
+                    'Código Cajero': conteo.cajeroCodigo,
+                    'Código Producto': p.codigo || p.id,
+                    'Producto': p.nombre,
+                    'Stock Sistema': p.stockSistema || p.cantidad,
+                    'Conteo Bodega': p.conteoBodega !== null && p.conteoBodega !== undefined ? p.conteoBodega : '',
+                    'Conteo Exhibición': p.conteoExhibicion !== null && p.conteoExhibicion !== undefined ? p.conteoExhibicion : '',
+                    'Conteo Total': p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal : '',
+                    'Stock Real': p.stockReal !== null && p.stockReal !== undefined ? p.stockReal : '',
+                    'Diferencia': p.conteoTotal !== null && p.conteoTotal !== undefined ? p.conteoTotal - (p.stockSistema || p.cantidad) : 
+                                  (p.stockReal !== null && p.stockReal !== undefined ? p.stockReal - p.cantidad : ''),
+                    'Estado': p.estado || 'PENDIENTE'
+                }));
+            });
+
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(datos);
-            ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 35 }, { wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+
+            ws['!cols'] = [
+                { wch: 20 }, { wch: 20 }, { wch: 15 },
+                { wch: 15 }, { wch: 35 }, { wch: 15 },
+                { wch: 15 }, { wch: 18 }, { wch: 15 },
+                { wch: 12 }, { wch: 12 }, { wch: 12 }
+            ];
+
             XLSX.utils.book_append_sheet(wb, ws, 'Historial Conteos');
+
             XLSX.writeFile(wb, `historial_conteos_${new Date().toISOString().split('T')[0]}.xlsx`);
             mostrarNotificacion('Historial exportado correctamente', 'success');
         }
