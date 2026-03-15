@@ -676,54 +676,86 @@
 }
 
         async function capturarDetalle() {
-            const btn = document.getElementById('btn-capturar');
-            const captureArea = document.getElementById('capture-area');
-            const notification = document.getElementById('capture-notification');
+    const btn = document.getElementById('btn-capturar');
+    const captureArea = document.getElementById('capture-area');
+    const notification = document.getElementById('capture-notification');
+    
+    btn.classList.add('capturing');
+    btn.innerHTML = '⏳ Generando imagen HD...';
+    
+    try {
+        // 🎯 CONFIGURACIÓN ULTRA-HD
+        const canvas = await html2canvas(captureArea, {
+            // Escala 4x para máxima calidad (puedes subir a 5 o 6 si la PC lo aguanta)
+            scale: 4,
             
-            btn.classList.add('capturing');
-            btn.innerHTML = '⏳ Capturando...';
+            // Usar el tamaño real del elemento sin comprimir
+            useCORS: true,
+            allowTaint: true,
             
-            try {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                const canvas = await html2canvas(captureArea, {
-                    backgroundColor: '#ffffff',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    windowWidth: captureArea.scrollWidth,
-                    windowHeight: captureArea.scrollHeight
-                });
-                
-                canvas.toBlob(async (blob) => {
-                    try {
-                        const item = new ClipboardItem({ 'image/png': blob });
-                        await navigator.clipboard.write([item]);
-                        
-                        notification.classList.add('show');
-                        setTimeout(() => {
-                            notification.classList.remove('show');
-                        }, 4000);
-                        
-                    } catch (clipboardError) {
-                        console.error('Error al copiar al portapapeles:', clipboardError);
-                        const link = document.createElement('a');
-                        link.download = `conteo_cigarrillos_${new Date().toISOString().split('T')[0]}.png`;
-                        link.href = canvas.toDataURL();
-                        link.click();
-                        
-                        mostrarNotificacion('Imagen descargada (no se pudo copiar al portapapeles)', 'warning');
-                    }
-                }, 'image/png');
-                
-            } catch (error) {
-                console.error('Error al capturar:', error);
-                mostrarNotificacion('Error al generar la imagen', 'error');
-            } finally {
-                btn.classList.remove('capturing');
-                btn.innerHTML = '📸 Capturar Imagen';
+            // Mejorar renderizado de texto
+            letterRendering: true,
+            
+            // Anti-aliasing máximo
+            imageTimeout: 0,
+            
+            // Forzar fondo blanco limpio
+            backgroundColor: '#ffffff',
+            
+            // Logging para debug (quitar en producción)
+            logging: false,
+            
+            // Optimizaciones de calidad
+            windowWidth: captureArea.scrollWidth * 2,
+            windowHeight: captureArea.scrollHeight * 2,
+            
+            // Mejorar bordes y líneas finas
+            onclone: function(clonedDoc) {
+                // Aplicar estilos de alta resolución al clon
+                const clonedArea = clonedDoc.getElementById('capture-area');
+                if (clonedArea) {
+                    clonedArea.style.transform = 'none';
+                    clonedArea.style.width = captureArea.offsetWidth + 'px';
+                }
             }
-        }
+        });
+        
+        // 🎯 POST-PROCESAMIENTO: Suavizar la imagen
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // Convertir a blob con calidad máxima
+        canvas.toBlob(async (blob) => {
+            try {
+                const item = new ClipboardItem({ 'image/png': blob });
+                await navigator.clipboard.write([item]);
+                
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+                
+            } catch (clipboardError) {
+                console.error('Error clipboard:', clipboardError);
+                // Fallback: descargar imagen HD
+                const link = document.createElement('a');
+                link.download = `conteo_${new Date().toISOString().split('T')[0]}_HD.png`;
+                link.href = canvas.toDataURL('image/png', 1.0); // Calidad 100%
+                link.click();
+                
+                mostrarNotificacion('Imagen HD descargada (no se pudo copiar al portapapeles)', 'warning');
+            }
+        }, 'image/png', 1.0); // Calidad máxima PNG
+        
+    } catch (error) {
+        console.error('Error al capturar:', error);
+        mostrarNotificacion('Error al generar la imagen HD', 'error');
+    } finally {
+        btn.classList.remove('capturing');
+        btn.innerHTML = '📸 Capturar Imagen HD';
+    }
+}
 
         function cerrarModalDetalle() {
             document.getElementById('modal-detalle').style.display = 'none';
