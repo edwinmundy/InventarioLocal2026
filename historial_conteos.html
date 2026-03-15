@@ -708,71 +708,355 @@
             document.getElementById('modal-detalle').style.display = 'block';
         }
 
-        async function capturarDetalle() {
-            const btn = document.getElementById('btn-capturar');
-            const captureArea = document.getElementById('capture-area');
-            const notification = document.getElementById('capture-notification');
-            
-            btn.classList.add('capturing');
-            btn.innerHTML = '⏳ Generando imagen HD...';
-            
-            try {
-                captureArea.scrollIntoView({ behavior: 'instant', block: 'start' });
-                await new Promise(resolve => setTimeout(resolve, 150));
-                
-                const canvas = await html2canvas(captureArea, {
-                    scale: 4,
-                    useCORS: true,
-                    allowTaint: true,
-                    letterRendering: true,
-                    imageTimeout: 0,
-                    backgroundColor: '#ffffff',
-                    logging: false,
-                    windowWidth: captureArea.scrollWidth * 2,
-                    windowHeight: captureArea.scrollHeight * 2,
-                    onclone: function(clonedDoc) {
-                        const clonedArea = clonedDoc.getElementById('capture-area');
-                        if (clonedArea) {
-                            clonedArea.style.transform = 'none';
-                            clonedArea.style.width = Math.max(captureArea.offsetWidth, 900) + 'px';
-                            clonedArea.style.color = '#1e293b';
-                        }
-                    }
-                });
-                
-                const ctx = canvas.getContext('2d');
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = 'high';
-                
-                canvas.toBlob(async (blob) => {
-                    try {
-                        const item = new ClipboardItem({ 'image/png': blob });
-                        await navigator.clipboard.write([item]);
-                        
-                        notification.classList.add('show');
-                        setTimeout(() => {
-                            notification.classList.remove('show');
-                        }, 4000);
-                        
-                    } catch (clipboardError) {
-                        const link = document.createElement('a');
-                        link.download = `conteo_${new Date().toISOString().split('T')[0]}_HD.png`;
-                        link.href = canvas.toDataURL('image/png', 1.0);
-                        link.click();
-                        
-                        mostrarNotificacion('Imagen HD descargada (no se pudo copiar al portapapeles)', 'warning');
-                    }
-                }, 'image/png', 1.0);
-                
-            } catch (error) {
-                console.error('Error al capturar:', error);
-                mostrarNotificacion('Error al generar la imagen HD', 'error');
-            } finally {
-                btn.classList.remove('capturing');
-                btn.innerHTML = '📸 Capturar Imagen HD';
-            }
-        }
+        // Reemplaza la función capturarDetalle() con esta versión mejorada
 
+async function capturarDetalle() {
+    const btn = document.getElementById('btn-capturar');
+    const captureArea = document.getElementById('capture-area');
+    const notification = document.getElementById('capture-notification');
+    
+    btn.classList.add('capturing');
+    btn.innerHTML = '⏳ Capturando...';
+    
+    try {
+        // Guardar estilos originales
+        const originalStyles = {
+            width: captureArea.style.width,
+            maxWidth: captureArea.style.maxWidth,
+            transform: captureArea.style.transform,
+            boxShadow: captureArea.style.boxShadow
+        };
+        
+        // Aplicar estilos para mejor captura
+        captureArea.style.width = '1200px';
+        captureArea.style.maxWidth = 'none';
+        captureArea.style.transform = 'none';
+        captureArea.style.boxShadow = 'none';
+        captureArea.style.background = 'white';
+        
+        // Pequeña pausa para que se apliquen los estilos
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Opciones mejoradas para html2canvas
+        const canvas = await html2canvas(captureArea, {
+            scale: 3, // Aumentar escala para mayor calidad (antes era 2)
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            allowTaint: false,
+            imageTimeout: 0,
+            windowWidth: 1200,
+            windowHeight: captureArea.scrollHeight,
+            onclone: (clonedDoc, element) => {
+                // Mejorar estilos en el clon para una captura más nítida
+                const style = clonedDoc.createElement('style');
+                style.innerHTML = `
+                    * {
+                        -webkit-font-smoothing: antialiased;
+                        -moz-osx-font-smoothing: grayscale;
+                        text-rendering: optimizeLegibility;
+                    }
+                    table {
+                        border-collapse: collapse;
+                        width: 100%;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    }
+                    th, td {
+                        padding: 12px 8px;
+                        border: 1px solid #e2e8f0;
+                    }
+                    th {
+                        background: #f8fafc;
+                        font-weight: 600;
+                        color: #1e293b;
+                    }
+                    .capture-header h2 {
+                        font-size: 24px;
+                        color: #2563eb;
+                        margin-bottom: 8px;
+                    }
+                    .capture-info {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 16px;
+                        background: #f8fafc;
+                        padding: 20px;
+                        border-radius: 12px;
+                        margin-bottom: 24px;
+                    }
+                `;
+                element.prepend(style);
+            }
+        });
+        
+        // Restaurar estilos originales
+        Object.assign(captureArea.style, originalStyles);
+        
+        // Crear imagen de alta calidad
+        const highQualityCanvas = document.createElement('canvas');
+        const ctx = highQualityCanvas.getContext('2d');
+        
+        // Aumentar aún más la calidad para la imagen final
+        highQualityCanvas.width = canvas.width * 1.5;
+        highQualityCanvas.height = canvas.height * 1.5;
+        
+        // Configurar contexto para mejor calidad
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        
+        // Dibujar con mejor interpolación
+        ctx.drawImage(canvas, 0, 0, highQualityCanvas.width, highQualityCanvas.height);
+        
+        // Convertir a blob con calidad máxima
+        const blob = await new Promise(resolve => {
+            highQualityCanvas.toBlob(resolve, 'image/png', 1.0);
+        });
+        
+        // Intentar copiar al portapapeles
+        try {
+            const item = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([item]);
+            
+            // Mostrar notificación de éxito
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+            
+        } catch (clipboardError) {
+            console.error('Error al copiar al portapapeles:', clipboardError);
+            
+            // Fallback: descargar imagen
+            const link = document.createElement('a');
+            link.download = `conteo_${new Date().toISOString().split('T')[0]}.png`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+            
+            mostrarNotificacion('Imagen descargada (no se pudo copiar al portapapeles)', 'warning');
+        }
+        
+    } catch (error) {
+        console.error('Error al capturar:', error);
+        mostrarNotificacion('Error al generar la imagen', 'error');
+    } finally {
+        btn.classList.remove('capturing');
+        btn.innerHTML = '📸 Capturar Imagen';
+    }
+}
+
+// También podemos mejorar la función que muestra el detalle
+function verDetalleConteo(id) {
+    const historial = obtenerHistorialConteos();
+    const conteo = historial.find(c => c.id === id);
+
+    if (!conteo) {
+        mostrarNotificacion('Conteo no encontrado', 'error');
+        return;
+    }
+
+    conteoActualParaCaptura = conteo;
+    
+    const esConteoCategoria = conteo.tipo === 'conteo_categoria';
+    const detalleDiv = document.getElementById('detalle-conteo');
+    const productos = conteo.productos || [];
+
+    // Mejorar el formato de la información de captura
+    document.getElementById('capture-info').innerHTML = `
+        <div class="capture-info-item">
+            <div class="capture-info-label">Tipo de Conteo</div>
+            <div class="capture-info-value">${esConteoCategoria ? '📊 Por Categoría' : '🚬 Por Producto'}</div>
+        </div>
+        <div class="capture-info-item">
+            <div class="capture-info-label">${esConteoCategoria ? 'Categoría' : 'Responsable'}</div>
+            <div class="capture-info-value">${esConteoCategoria ? conteo.categoriaNombre : conteo.cajeroNombre}</div>
+        </div>
+        <div class="capture-info-item">
+            <div class="capture-info-label">Fecha y Hora</div>
+            <div class="capture-info-value">${new Date(conteo.fechaFin || conteo.fecha).toLocaleString('es-ES', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            })}</div>
+        </div>
+        ${conteo.observaciones ? `
+        <div class="capture-info-item" style="grid-column: span 3;">
+            <div class="capture-info-label">Observaciones</div>
+            <div class="capture-info-value">${conteo.observaciones}</div>
+        </div>
+        ` : ''}
+    `;
+    
+    document.getElementById('capture-fecha').textContent = new Date().toLocaleString('es-ES', {
+        dateStyle: 'full',
+        timeStyle: 'medium'
+    });
+
+    // Generar tabla con mejor formato
+    if (esConteoCategoria) {
+        detalleDiv.innerHTML = `
+            <table class="detalle-table" style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                        <th style="text-align: left; padding: 12px;">ID</th>
+                        <th style="text-align: left; padding: 12px;">Producto</th>
+                        <th style="text-align: center; padding: 12px;">Stock Sistema</th>
+                        <th style="text-align: center; padding: 12px;">Stock Real</th>
+                        <th style="text-align: center; padding: 12px;">Diferencia</th>
+                        <th style="text-align: center; padding: 12px;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productos.map((p, index) => {
+                        const tieneReal = p.stockReal !== null && p.stockReal !== undefined;
+                        const diferencia = tieneReal ? p.stockReal - p.cantidad : 0;
+                        
+                        let estadoColor = '';
+                        let estadoBg = '';
+                        switch(p.estado) {
+                            case 'OK': 
+                                estadoColor = '#059669'; 
+                                estadoBg = '#d1fae5';
+                                break;
+                            case 'INGRESAR': 
+                                estadoColor = '#2563eb'; 
+                                estadoBg = '#dbeafe';
+                                break;
+                            case 'EGRESAR': 
+                                estadoColor = '#dc2626'; 
+                                estadoBg = '#fee2e2';
+                                break;
+                            default: 
+                                estadoColor = '#92400e'; 
+                                estadoBg = '#fef3c7';
+                        }
+                        
+                        return `
+                            <tr style="${index % 2 === 0 ? 'background: white;' : 'background: #fafafa;'}">
+                                <td style="text-align: left; padding: 10px;"><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${p.id}</code></td>
+                                <td style="text-align: left; padding: 10px; font-weight: 500;">${p.nombre}</td>
+                                <td style="text-align: center; padding: 10px;">${p.cantidad}</td>
+                                <td style="text-align: center; padding: 10px; font-weight: 600; color: ${tieneReal ? '#2563eb' : '#64748b'};">
+                                    ${tieneReal ? p.stockReal : '-'}
+                                </td>
+                                <td style="text-align: center; padding: 10px; font-weight: 700; color: ${diferencia > 0 ? '#059669' : (diferencia < 0 ? '#dc2626' : '#64748b')}">
+                                    ${tieneReal ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
+                                </td>
+                                <td style="text-align: center; padding: 10px;">
+                                    <span style="background: ${estadoBg}; color: ${estadoColor}; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                                        ${p.estado || 'PENDIENTE'}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    } else {
+        // Similar mejora para la tabla de cigarrillos...
+        detalleDiv.innerHTML = `
+            <table class="detalle-table" style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                        <th style="text-align: left; padding: 12px;">Código</th>
+                        <th style="text-align: left; padding: 12px;">Producto</th>
+                        <th style="text-align: center; padding: 12px;">Stock Sistema</th>
+                        <th style="text-align: center; padding: 12px; color: #8b5cf6;">🏭 Bodega</th>
+                        <th style="text-align: center; padding: 12px; color: #0891b2;">🏪 Exhibición</th>
+                        <th style="text-align: center; padding: 12px; color: #2563eb;">📊 Total</th>
+                        <th style="text-align: center; padding: 12px;">Diferencia</th>
+                        <th style="text-align: center; padding: 12px;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productos.map((p, index) => {
+                        const diferencia = (p.conteoTotal !== null && p.conteoTotal !== undefined) ? p.conteoTotal - p.stockSistema : 0;
+                        const estado = p.estado || 'PENDIENTE';
+
+                        let estadoColor = '';
+                        let estadoBg = '';
+                        switch(estado) {
+                            case 'OK': 
+                                estadoColor = '#059669'; 
+                                estadoBg = '#d1fae5';
+                                break;
+                            case 'INGRESAR': 
+                                estadoColor = '#2563eb'; 
+                                estadoBg = '#dbeafe';
+                                break;
+                            case 'EGRESAR': 
+                                estadoColor = '#dc2626'; 
+                                estadoBg = '#fee2e2';
+                                break;
+                            default: 
+                                estadoColor = '#92400e'; 
+                                estadoBg = '#fef3c7';
+                        }
+
+                        return `
+                            <tr style="${index % 2 === 0 ? 'background: white;' : 'background: #fafafa;'}">
+                                <td style="text-align: left; padding: 10px;"><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${p.codigo}</code></td>
+                                <td style="text-align: left; padding: 10px; font-weight: 500;">${p.nombre}</td>
+                                <td style="text-align: center; padding: 10px;">${p.stockSistema}</td>
+                                <td style="text-align: center; padding: 10px; font-weight: 600; color: #8b5cf6;">${p.conteoBodega !== null ? p.conteoBodega : '-'}</td>
+                                <td style="text-align: center; padding: 10px; font-weight: 600; color: #0891b2;">${p.conteoExhibicion !== null ? p.conteoExhibicion : '-'}</td>
+                                <td style="text-align: center; padding: 10px; font-weight: 700; color: #2563eb;">${p.conteoTotal !== null ? p.conteoTotal : '-'}</td>
+                                <td style="text-align: center; padding: 10px; font-weight: 700; color: ${diferencia > 0 ? '#059669' : (diferencia < 0 ? '#dc2626' : '#64748b')}">
+                                    ${p.conteoTotal !== null ? (diferencia > 0 ? `+${diferencia}` : diferencia) : '-'}
+                                </td>
+                                <td style="text-align: center; padding: 10px;">
+                                    <span style="background: ${estadoBg}; color: ${estadoColor}; padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem;">
+                                        ${estado}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    // Agregar totales al final
+    const totales = productos.reduce((acc, p) => {
+        if (esConteoCategoria) {
+            acc.totalSistema += p.cantidad || 0;
+            acc.totalReal += p.stockReal || 0;
+        } else {
+            acc.totalSistema += p.stockSistema || 0;
+            acc.totalReal += p.conteoTotal || 0;
+        }
+        return acc;
+    }, { totalSistema: 0, totalReal: 0 });
+
+    const diferenciaTotal = totales.totalReal - totales.totalSistema;
+
+    detalleDiv.innerHTML += `
+        <div style="margin-top: 24px; padding: 16px; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 8px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px;">
+            <div style="text-align: center;">
+                <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Total Sistema</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #1e293b;">${totales.totalSistema}</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Total Real</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #2563eb;">${totales.totalReal}</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Diferencia Total</div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: ${diferenciaTotal > 0 ? '#059669' : (diferenciaTotal < 0 ? '#dc2626' : '#64748b')}">
+                    ${diferenciaTotal > 0 ? `+${diferenciaTotal}` : diferenciaTotal}
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modal-detalle').style.display = 'block';
+}
+        
         function cerrarModalDetalle() {
             document.getElementById('modal-detalle').style.display = 'none';
             conteoActualParaCaptura = null;
