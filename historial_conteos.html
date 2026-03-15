@@ -231,7 +231,14 @@
             margin-top: 4px;
         }
 
-        /* Botón de captura mejorado */
+        /* Botones de acción en modal */
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
         .capture-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -244,7 +251,6 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
-            margin-left: 12px;
         }
 
         .capture-btn:hover {
@@ -258,6 +264,35 @@
 
         .capture-btn.capturing {
             background: #10b981;
+            pointer-events: none;
+        }
+
+        /* 🆕 BOTÓN PDF */
+        .pdf-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.4);
+        }
+
+        .pdf-btn:active {
+            transform: translateY(0);
+        }
+
+        .pdf-btn.generating {
+            background: #f59e0b;
             pointer-events: none;
         }
 
@@ -279,6 +314,26 @@
         }
 
         .capture-notification.show {
+            display: flex;
+        }
+
+        .pdf-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .pdf-notification.show {
             display: flex;
         }
 
@@ -325,11 +380,15 @@
                 padding: 10px 6px !important;
             }
 
-            .capture-btn {
+            .modal-actions {
+                flex-direction: column;
                 width: 100%;
-                margin-left: 0;
-                margin-top: 12px;
+            }
+
+            .capture-btn, .pdf-btn {
+                width: 100%;
                 justify-content: center;
+                margin-left: 0;
             }
 
             .capture-info {
@@ -371,10 +430,14 @@
         <div class="modal-content-detalle">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                 <h2>📋 Detalle del Conteo</h2>
-                <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <!-- 🆕 BOTONES DE ACCIÓN MEJORADOS -->
+                <div class="modal-actions">
                     <button onclick="cerrarModalDetalle()" class="btn-secondary" style="padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; background: var(--secondary); color: white;">✕ Cerrar</button>
                     <button onclick="capturarDetalle()" class="capture-btn" id="btn-capturar">
                         📸 Capturar Imagen HD
+                    </button>
+                    <button onclick="exportarPDF()" class="pdf-btn" id="btn-pdf">
+                        📄 Exportar PDF
                     </button>
                 </div>
             </div>
@@ -410,8 +473,18 @@
         </div>
     </div>
 
+    <!-- 🆕 Notificación de PDF -->
+    <div id="pdf-notification" class="pdf-notification">
+        <span style="font-size: 1.5rem;">📄</span>
+        <div>
+            <strong>¡PDF generado!</strong><br>
+            <small>Descargando archivo...</small>
+        </div>
+    </div>
+
     <!-- Librerías -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="js/app.js"></script>
     <script>
@@ -714,53 +787,33 @@
             btn.innerHTML = '⏳ Generando imagen HD...';
             
             try {
-                // Scroll al inicio del área para capturar todo
                 captureArea.scrollIntoView({ behavior: 'instant', block: 'start' });
-                
-                // Esperar a que el renderizado se estabilice
                 await new Promise(resolve => setTimeout(resolve, 150));
                 
-                // 🎯 CONFIGURACIÓN ULTRA-HD
                 const canvas = await html2canvas(captureArea, {
-                    // Escala 4x para máxima calidad
                     scale: 4,
-                    
-                    // Mejorar renderizado de texto
                     useCORS: true,
                     allowTaint: true,
                     letterRendering: true,
-                    
-                    // Anti-aliasing máximo
                     imageTimeout: 0,
-                    
-                    // Fondo blanco limpio
                     backgroundColor: '#ffffff',
-                    
-                    // Desactivar logging
                     logging: false,
-                    
-                    // Dimensiones ampliadas
                     windowWidth: captureArea.scrollWidth * 2,
                     windowHeight: captureArea.scrollHeight * 2,
-                    
-                    // Callback de clonado para ajustes finos
                     onclone: function(clonedDoc) {
                         const clonedArea = clonedDoc.getElementById('capture-area');
                         if (clonedArea) {
                             clonedArea.style.transform = 'none';
                             clonedArea.style.width = Math.max(captureArea.offsetWidth, 900) + 'px';
-                            // Forzar colores nítidos
                             clonedArea.style.color = '#1e293b';
                         }
                     }
                 });
                 
-                // 🎯 POST-PROCESAMIENTO: Suavizar la imagen
                 const ctx = canvas.getContext('2d');
                 ctx.imageSmoothingEnabled = true;
                 ctx.imageSmoothingQuality = 'high';
                 
-                // Convertir a blob con calidad máxima
                 canvas.toBlob(async (blob) => {
                     try {
                         const item = new ClipboardItem({ 'image/png': blob });
@@ -773,7 +826,6 @@
                         
                     } catch (clipboardError) {
                         console.error('Error clipboard:', clipboardError);
-                        // Fallback: descargar imagen HD
                         const link = document.createElement('a');
                         link.download = `conteo_${new Date().toISOString().split('T')[0]}_HD.png`;
                         link.href = canvas.toDataURL('image/png', 1.0);
@@ -789,6 +841,104 @@
             } finally {
                 btn.classList.remove('capturing');
                 btn.innerHTML = '📸 Capturar Imagen HD';
+            }
+        }
+
+        // 🆕 NUEVA FUNCIÓN: EXPORTAR A PDF
+        async function exportarPDF() {
+            const { jsPDF } = window.jspdf;
+            const btn = document.getElementById('btn-pdf');
+            const notification = document.getElementById('pdf-notification');
+            const captureArea = document.getElementById('capture-area');
+            
+            if (!conteoActualParaCaptura) {
+                mostrarNotificacion('No hay conteo cargado', 'error');
+                return;
+            }
+            
+            btn.classList.add('generating');
+            btn.innerHTML = '⏳ Generando PDF...';
+            
+            try {
+                // Scroll al inicio para capturar todo
+                captureArea.scrollIntoView({ behavior: 'instant', block: 'start' });
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // Capturar en alta resolución
+                const canvas = await html2canvas(captureArea, {
+                    scale: 3, // Escala 3x para buena calidad y tamaño razonable
+                    useCORS: true,
+                    allowTaint: true,
+                    letterRendering: true,
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    windowWidth: captureArea.scrollWidth * 1.5,
+                    windowHeight: captureArea.scrollHeight * 1.5,
+                    onclone: function(clonedDoc) {
+                        const clonedArea = clonedDoc.getElementById('capture-area');
+                        if (clonedArea) {
+                            clonedArea.style.transform = 'none';
+                            clonedArea.style.width = Math.max(captureArea.offsetWidth, 800) + 'px';
+                        }
+                    }
+                });
+                
+                // Crear PDF en formato horizontal (landscape) para mejor aprovechamiento
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                
+                const imgData = canvas.toDataURL('image/png', 1.0);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                // Calcular dimensiones manteniendo proporción
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
+                
+                const imgX = 10;
+                const imgY = 10;
+                const finalWidth = imgWidth * ratio;
+                const finalHeight = imgHeight * ratio;
+                
+                // Agregar imagen al PDF
+                pdf.addImage(imgData, 'PNG', imgX, imgY, finalWidth, finalHeight);
+                
+                // Si la imagen es muy larga, agregar páginas adicionales
+                let heightLeft = finalHeight;
+                let position = imgY;
+                
+                // Verificar si necesita múltiples páginas
+                if (finalHeight > pdfHeight - 20) {
+                    heightLeft -= (pdfHeight - 20);
+                    
+                    while (heightLeft > 0) {
+                        position = heightLeft - finalHeight + imgY;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', imgX, position, finalWidth, finalHeight);
+                        heightLeft -= (pdfHeight - 20);
+                    }
+                }
+                
+                // Generar nombre de archivo
+                const esConteoCategoria = conteoActualParaCaptura.tipo === 'conteo_categoria';
+                const tipoNombre = esConteoCategoria ? 'categoria' : 'cigarrillos';
+                const fecha = new Date(conteoActualParaCaptura.fechaFin || conteoActualParaCaptura.fecha).toISOString().split('T')[0];
+                const cajeroCodigo = conteoActualParaCaptura.cajeroCodigo;
+                
+                pdf.save(`conteo_${tipoNombre}_${fecha}_${cajeroCodigo}.pdf`);
+                
+                // Mostrar notificación
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+                
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                mostrarNotificacion('Error al generar el PDF', 'error');
+            } finally {
+                btn.classList.remove('generating');
+                btn.innerHTML = '📄 Exportar PDF';
             }
         }
 
