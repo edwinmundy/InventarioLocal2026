@@ -1534,3 +1534,163 @@ function mostrarTabDinamica(tab) {
 function mostrarTab(tab) {
     mostrarTabDinamica(tab);
 }
+
+// Variable global para datos pendientes
+let datosPendientes = null;
+let tipoImportacion = ''; // 'cajeros', 'productos', 'categorias'
+
+function mostrarBotonForzarGuardado(cantidad, tipo) {
+    datosPendientes = {
+        tipo: tipo,
+        cantidad: cantidad,
+        timestamp: new Date().toISOString()
+    };
+    tipoImportacion = tipo;
+    
+    const container = document.getElementById('force-save-container');
+    const countSpan = document.getElementById('pending-count');
+    
+    if (container && countSpan) {
+        container.style.display = 'block';
+        countSpan.textContent = cantidad;
+        
+        // Scroll al botón
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function forzarGuardadoCajeros() {
+    const btn = document.getElementById('btn-force-save');
+    const statusDiv = document.getElementById('save-status');
+    
+    if (!btn || !datosPendientes) return;
+    
+    btn.disabled = true;
+    btn.classList.add('saving');
+    btn.innerHTML = '⏳ Guardando...';
+    statusDiv.className = 'save-status';
+    statusDiv.style.display = 'none';
+    
+    try {
+        // 1. Verificar espacio disponible en localStorage
+        const espacioUsado = JSON.stringify(localStorage).length;
+        const espacioMaximo = 5 * 1024 * 1024; // 5MB típico
+        const espacioDisponible = espacioMaximo - espacioUsado;
+        
+        console.log(`Espacio usado: ${(espacioUsado/1024).toFixed(2)}KB / ${(espacioMaximo/1024).toFixed(2)}KB`);
+        
+        if (espacioDisponible < 1024) { // Menos de 1KB libre
+            throw new Error(`Espacio insuficiente en localStorage. Usado: ${(espacioUsado/1024).toFixed(2)}KB. Limpie el historial o exporte datos antiguos.`);
+        }
+        
+        // 2. Intentar guardado con retry
+        let intentos = 0;
+        const maxIntentos = 3;
+        let guardadoExitoso = false;
+        
+        while (intentos < maxIntentos && !guardadoExitoso) {
+            try {
+                // Guardar
+                guardarDatos('cajeros', cajerosActuales);
+                
+                // Verificación estricta
+                const verificacion = localStorage.getItem('inventario_cajeros');
+                if (!verificacion) {
+                    throw new Error('localStorage retornó null después de guardar');
+                }
+                
+                const datosVerificados = JSON.parse(verificacion);
+                if (datosVerificados.length !== cajerosActuales.length) {
+                    throw new Error(`Discrepancia en conteo: esperado ${cajerosActuales.length}, encontrado ${datosVerificados.length}`);
+                }
+                
+                guardadoExitoso = true;
+                
+            } catch (err) {
+                intentos++;
+                console.warn(`Intento ${intentos} fallido:`, err);
+                if (intentos < maxIntentos) {
+                    // Esperar antes de reintentar
+                    const delay = intentos * 100; // 100ms, 200ms...
+                    const start = Date.now();
+                    while (Date.now() - start < delay) {} // Busy wait simple
+                } else {
+                    throw err;
+                }
+            }
+        }
+        
+        if (guardadoExitoso) {
+            // Éxito
+            statusDiv.className = 'save-status show success';
+            statusDiv.innerHTML = `
+                <strong>✅ Guardado exitoso</strong><br>
+                ${cajerosActuales.length} cajeros almacenados en localStorage.<br>
+                <small>Espacio usado: ${(JSON.stringify(localStorage).length/1024).toFixed(2)}KB</small>
+            `;
+            
+            btn.innerHTML = '✓ Guardado Completado';
+            btn.style.background = '#059669';
+            
+            // Recargar lista y limpiar
+            cargarCajeros();
+            cajerosImportados = [];
+            datosPendientes = null;
+            
+            // Registrar auditoría
+            registrarAuditoria({
+                cajeroId: cajeroActual.id,
+                cajeroNombre: cajeroActual.nombre,
+                cajeroCodigo: cajeroActual.codigo,
+                tipo: 'importacion_cajeros',
+                categoria: 'sistema',
+                itemNombre: `Importación forzada de ${cajerosActuales.length} cajeros`,
+                cantidad: cajerosActuales.length,
+                stockAnterior: cajerosActuales.length - cajerosImportados.length,
+                stockNuevo: cajerosActuales.length
+            });
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                document.getElementById('force-save-container').style.display = 'none';
+                btn.disabled = false;
+                btn.classList.remove('saving');
+                btn.innerHTML = '💾 Forzar Guardado Local';
+            }, 3000);
+        }
+        
+    } catch (error) {
+        console.error('Error en forzar guardado:', error);
+        statusDiv.className = 'save-status show error';
+        statusDiv.innerHTML = `
+            <strong>❌ Error al guardar</strong><br>
+            ${error.message}<br>
+            <small>Intenta descargar el backup JSON como alternativa</small>
+        `;
+        btn.disabled = false;
+        btn.classList.remove('saving');
+        btn.innerHTML = '💾 Reintentar Guardado';
+    }
+}
+
+// Función de backup alternativo si localStorage falla
+function descargarBackupJSON() {
+    try {
+        const cajeros = obtenerDatos('cajeros');
+        const dataStr = JSON.stringify(cajeros, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `cajeros_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        mostrarNotificacion('Backup descargado. Puedes importarlo manualmente más tarde.', 'success');
+    } catch (error) {
+        mostrarNotificacion('Error al generar backup: ' + error.message, 'error');
+    }
+}
