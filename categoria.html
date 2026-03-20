@@ -434,50 +434,65 @@
         }
 
         function importarProductos() {
-            let itemsActuales = obtenerDatos(categoriaActualId);
-            let agregados = 0;
-            let actualizados = 0;
+    try {
+        let itemsActuales = obtenerDatos(categoriaActualId);
+        let agregados = 0;
+        let actualizados = 0;
+        
+        productosImportados.forEach(nuevo => {
+            const indexExistente = itemsActuales.findIndex(item => item.id === nuevo.id);
             
-            productosImportados.forEach(nuevo => {
-                const indexExistente = itemsActuales.findIndex(item => item.id === nuevo.id);
-                
-                if (indexExistente !== -1) {
-                    // Actualizar existente
-                    itemsActuales[indexExistente] = {
-                        ...itemsActuales[indexExistente],
-                        ...nuevo
-                    };
-                    actualizados++;
-                } else {
-                    // Agregar nuevo
-                    itemsActuales.push(nuevo);
-                    agregados++;
-                }
-            });
-            
-            guardarDatos(categoriaActualId, itemsActuales);
-            cargarItemsEnGrid(categoriaActualId);
-            
-            let mensaje = `✅ ${agregados} productos importados`;
-            if (actualizados > 0) {
-                mensaje += ` • ${actualizados} actualizados`;
+            if (indexExistente !== -1) {
+                itemsActuales[indexExistente] = {
+                    ...itemsActuales[indexExistente],
+                    ...nuevo
+                };
+                actualizados++;
+            } else {
+                itemsActuales.push(nuevo);
+                agregados++;
             }
-            
-            mostrarNotificacion(mensaje, 'success');
-            
-            // Registrar en auditoría
-            registrarAuditoria({
-                cajeroId: cajeroActual.id,
-                cajeroNombre: cajeroActual.nombre,
-                cajeroCodigo: cajeroActual.codigo,
-                tipo: 'importacion_productos',
-                categoria: categoriaActualId,
-                itemNombre: `Importación de ${agregados} productos`,
-                cantidad: agregados,
-                stockAnterior: itemsActuales.length - agregados,
-                stockNuevo: itemsActuales.length
-            });
+        });
+        
+        // GUARDAR CON VERIFICACIÓN
+        guardarDatos(categoriaActualId, itemsActuales);
+        
+        // Verificar que se guardó
+        const verificacion = obtenerDatos(categoriaActualId);
+        if (verificacion.length !== itemsActuales.length) {
+            throw new Error('Error de verificación al guardar productos');
         }
+        
+        cargarItemsEnGrid(categoriaActualId);
+        
+        let mensaje = `✅ ${agregados} productos importados`;
+        if (actualizados > 0) {
+            mensaje += ` • ${actualizados} actualizados`;
+        }
+        
+        mostrarNotificacion(mensaje, 'success');
+        
+        // Limpiar
+        productosImportados = [];
+        
+        // Registrar en auditoría
+        registrarAuditoria({
+            cajeroId: cajeroActual.id,
+            cajeroNombre: cajeroActual.nombre,
+            cajeroCodigo: cajeroActual.codigo,
+            tipo: 'importacion_productos',
+            categoria: categoriaActualId,
+            itemNombre: `Importación de ${agregados} productos`,
+            cantidad: agregados,
+            stockAnterior: itemsActuales.length - agregados,
+            stockNuevo: itemsActuales.length
+        });
+        
+    } catch (error) {
+        console.error('Error al importar productos:', error);
+        mostrarNotificacion('❌ Error al guardar productos: ' + error.message, 'error');
+    }
+}
 
         function exportarProductosExcel() {
             const items = obtenerDatos(categoriaActualId);
