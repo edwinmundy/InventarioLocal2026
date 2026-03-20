@@ -493,7 +493,7 @@
         mostrarNotificacion('❌ Error al guardar productos: ' + error.message, 'error');
     }
 }
-
+        
         function exportarProductosExcel() {
             const items = obtenerDatos(categoriaActualId);
             const categoria = obtenerCategorias().find(c => c.id === categoriaActualId);
