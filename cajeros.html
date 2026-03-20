@@ -230,6 +230,23 @@ font-weight:bold;
         <button class="import-tab" onclick="event.stopPropagation(); switchImportTabCajeros('paste')">📋 Pegar Datos</button>
         <button class="import-tab" onclick="event.stopPropagation(); switchImportTabCajeros('export')">📤 Exportar</button>
     </div>
+    
+    <!-- Botón de Forzar Guardado -->
+<div id="force-save-container" style="display: none; margin-top: 20px; padding: 16px; background: #f0fdf4; border: 2px solid #10b981; border-radius: 12px; text-align: center;">
+    <div style="font-size: 1.5rem; margin-bottom: 8px;">⚠️</div>
+    <strong>Datos listos para importar</strong>
+    <p style="margin: 8px 0; color: var(--text-light); font-size: 0.9rem;">
+        Se encontraron <span id="pending-count">0</span> cajeros nuevos.
+        <br>Haz clic en el botón para forzar el guardado en el almacenamiento local.
+    </p>
+    <button onclick="forzarGuardadoCajeros()" class="force-save-btn" id="btn-force-save">
+        💾 Forzar Guardado Local
+    </button>
+    <div id="save-status" class="save-status"></div>
+    <button onclick="descargarBackupJSON()" class="btn-secondary" style="margin-top: 8px; font-size: 0.85rem; padding: 8px 16px;">
+        📥 Descargar Backup (JSON)
+    </button>
+</div>
 
     <!-- Importar por archivo -->
     <div id="tab-file-cajeros" class="import-content active">
