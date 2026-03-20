@@ -883,47 +883,66 @@
         }
 
         function importarCategorias() {
-            let categoriasActuales = obtenerCategorias();
-            let agregadas = 0;
-            let duplicadas = 0;
-            
-            categoriasImportadas.forEach(nueva => {
-                // Verificar que no exista ID duplicado
-                const existe = categoriasActuales.find(c => c.id === nueva.id);
-                if (existe) {
-                    duplicadas++;
-                } else {
-                    categoriasActuales.push(nueva);
-                    // Crear storage vacío para la nueva categoría
-                    guardarDatos(nueva.id, []);
-                    agregadas++;
-                }
-            });
-            
-            guardarCategorias(categoriasActuales);
-            cargarCategoriasAdmin();
-            
-            let mensaje = `✅ ${agregadas} categorías importadas`;
-            if (duplicadas > 0) {
-                mensaje += ` • ${duplicadas} omitidas (ID duplicado)`;
+    try {
+        let categoriasActuales = obtenerCategorias();
+        let agregadas = 0;
+        let duplicadas = 0;
+        
+        categoriasImportadas.forEach(nueva => {
+            const existe = categoriasActuales.find(c => c.id === nueva.id);
+            if (existe) {
+                duplicadas++;
+            } else {
+                categoriasActuales.push(nueva);
+                // Crear storage vacío para la nueva categoría
+                guardarDatos(nueva.id, []);
+                agregadas++;
             }
-            
-            mostrarNotificacion(mensaje, 'success');
-            
-            // Registrar en auditoría
-            registrarAuditoria({
-                cajeroId: cajeroActual.id,
-                cajeroNombre: cajeroActual.nombre,
-                cajeroCodigo: cajeroActual.codigo,
-                tipo: 'importacion_categorias',
-                categoria: 'sistema',
-                itemNombre: `Importación de ${agregadas} categorías`,
-                cantidad: agregadas,
-                stockAnterior: categoriasActuales.length - agregadas,
-                stockNuevo: categoriasActuales.length
-            });
+        });
+        
+        if (agregadas === 0) {
+            mostrarNotificacion(`⚠️ Todas las categorías (${duplicadas}) ya existen`, 'warning');
+            return;
         }
-
+        
+        // GUARDAR CATEGORÍAS
+        guardarCategorias(categoriasActuales);
+        
+        // Verificar
+        const verificacion = obtenerCategorias();
+        if (verificacion.length !== categoriasActuales.length) {
+            throw new Error('Error al guardar categorías');
+        }
+        
+        cargarCategoriasAdmin();
+        
+        let mensaje = `✅ ${agregadas} categorías importadas`;
+        if (duplicadas > 0) {
+            mensaje += ` • ${duplicadas} omitidas (ID duplicado)`;
+        }
+        
+        mostrarNotificacion(mensaje, 'success');
+        
+        categoriasImportadas = [];
+        
+        registrarAuditoria({
+            cajeroId: cajeroActual.id,
+            cajeroNombre: cajeroActual.nombre,
+            cajeroCodigo: cajeroActual.codigo,
+            tipo: 'importacion_categorias',
+            categoria: 'sistema',
+            itemNombre: `Importación de ${agregadas} categorías`,
+            cantidad: agregadas,
+            stockAnterior: categoriasActuales.length - agregadas,
+            stockNuevo: categoriasActuales.length
+        });
+        
+    } catch (error) {
+        console.error('Error al importar categorías:', error);
+        mostrarNotificacion('❌ Error al guardar: ' + error.message, 'error');
+    }
+}
+        
         function exportarCategoriasExcel() {
             const categorias = obtenerCategorias();
             
