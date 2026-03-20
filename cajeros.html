@@ -501,97 +501,50 @@ style="font-size:0.8rem;color:#64748b;margin-bottom:10px;padding:8px;background:
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-            procesarDatosExcelCajeros(jsonData);
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                procesarDatosExcelCajeros(jsonData);
+            } catch (error) {
+                console.error('Error al leer archivo:', error);
+                mostrarNotificacion('❌ Error al leer el archivo Excel', 'error');
+            }
+        };
+        reader.onerror = function() {
+            mostrarNotificacion('❌ Error al leer el archivo', 'error');
         };
         reader.readAsArrayBuffer(file);
     }
 
     function procesarDatosExcelCajeros(data) {
-        // Ignorar primera fila (headers), datos desde fila 2
-        const filasValidas = data.slice(1);
-        cajerosImportados = [];
-        
-        filasValidas.forEach((fila, index) => {
-            if (!fila || fila.length < 5) return;
+        try {
+            // Ignorar primera fila (headers), datos desde fila 2
+            const filasValidas = data.slice(1);
+            cajerosImportados = [];
             
-            const nombre = String(fila[0] || '').trim();
-            const rut = String(fila[1] || '').trim();
-            const turno = String(fila[2] || 'T1').trim();
-            const codigo = String(fila[3] || '').trim().toUpperCase();
-            const password = String(fila[4] || '').trim();
-            const cargo = String(fila[5] || 'Cajero Multifuncional').trim();
-            
-            if (nombre && codigo && password) {
-                // Validar que el código no sea ADMIN (reservado)
-                if (codigo === 'ADMIN') return;
+            filasValidas.forEach((fila, index) => {
+                if (!fila || fila.length < 5) return;
                 
-                // Validar contraseña numérica
-                if (!/^\d+$/.test(password)) return;
+                const nombre = String(fila[0] || '').trim();
+                const rut = String(fila[1] || '').trim();
+                const turno = String(fila[2] || 'T1').trim();
+                const codigo = String(fila[3] || '').trim().toUpperCase();
+                const password = String(fila[4] || '').trim();
+                const cargo = String(fila[5] || 'Cajero Multifuncional').trim();
                 
-                cajerosImportados.push({
-                    id: `caj-${Date.now()}-${index}`,
-                    nombre: nombre,
-                    rut: rut || '0.000.000-0',
-                    turno: turno,
-                    codigo: codigo,
-                    password: password,
-                    cargo: cargo,
-                    activo: true
-                });
-            }
-        });
-        
-        if (cajerosImportados.length === 0) {
-            mostrarNotificacion('No se encontraron cajeros válidos en el archivo', 'error');
-            return;
-        }
-        
-        // Confirmar importación
-        if (confirm(`¿Importar ${cajerosImportados.length} cajeros?\n\n⚠️ Esto agregará los cajeros a la lista existente.`)) {
-            importarCajeros();
-        }
-    }
-
-    function procesarDatosPegadosCajeros() {
-        const texto = document.getElementById('paste-zone-cajeros').value.trim();
-        if (!texto) {
-            mostrarNotificacion('No hay datos para procesar', 'error');
-            return;
-        }
-
-        const lineas = texto.split('\n');
-        cajerosImportados = [];
-        
-        // Detectar si hay encabezado
-        let inicio = 0;
-        if (lineas[0].toLowerCase().includes('nombre') || lineas[0].toLowerCase().includes('código')) {
-            inicio = 1;
-        }
-
-        for (let i = inicio; i < lineas.length; i++) {
-            const linea = lineas[i].trim();
-            if (!linea) continue;
-
-            // Separar por tabulaciones, punto y coma, o pipe |
-            const columnas = linea.split(/[\t;|]+/).map(c => c.trim());
-            
-            if (columnas.length >= 4) {
-                const nombre = columnas[0];
-                const rut = columnas[1] || '0.000.000-0';
-                const turno = columnas[2] || 'T1';
-                const codigo = columnas[3].toUpperCase();
-                const password = columnas[4] || '0000';
-                const cargo = columnas[5] || 'Cajero Multifuncional';
-                
-                if (nombre && codigo && codigo !== 'ADMIN' && /^\d+$/.test(password)) {
+                if (nombre && codigo && password) {
+                    // Validar que el código no sea ADMIN (reservado)
+                    if (codigo === 'ADMIN') return;
+                    
+                    // Validar contraseña numérica
+                    if (!/^\d+$/.test(password)) return;
+                    
                     cajerosImportados.push({
-                        id: `caj-${Date.now()}-${i}`,
+                        id: `caj-${Date.now()}-${index}`,
                         nombre: nombre,
-                        rut: rut,
+                        rut: rut || '0.000.000-0',
                         turno: turno,
                         codigo: codigo,
                         password: password,
@@ -599,117 +552,213 @@ style="font-size:0.8rem;color:#64748b;margin-bottom:10px;padding:8px;background:
                         activo: true
                     });
                 }
+            });
+            
+            if (cajerosImportados.length === 0) {
+                mostrarNotificacion('No se encontraron cajeros válidos en el archivo', 'error');
+                return;
             }
+            
+            // Confirmar importación
+            if (confirm(`¿Importar ${cajerosImportados.length} cajeros?\n\n⚠️ Esto agregará los cajeros a la lista existente.`)) {
+                importarCajeros();
+            }
+        } catch (error) {
+            console.error('Error al procesar Excel:', error);
+            mostrarNotificacion('❌ Error al procesar el archivo: ' + error.message, 'error');
         }
-        
-        if (cajerosImportados.length === 0) {
-            mostrarNotificacion('No se pudieron procesar los datos. Verifica el formato.', 'error');
-            return;
+    }
+
+    function procesarDatosPegadosCajeros() {
+        try {
+            const texto = document.getElementById('paste-zone-cajeros').value.trim();
+            if (!texto) {
+                mostrarNotificacion('No hay datos para procesar', 'error');
+                return;
+            }
+
+            const lineas = texto.split('\n');
+            cajerosImportados = [];
+            
+            // Detectar si hay encabezado
+            let inicio = 0;
+            if (lineas[0].toLowerCase().includes('nombre') || lineas[0].toLowerCase().includes('código')) {
+                inicio = 1;
+            }
+
+            for (let i = inicio; i < lineas.length; i++) {
+                const linea = lineas[i].trim();
+                if (!linea) continue;
+
+                // Separar por tabulaciones, punto y coma, o pipe |
+                const columnas = linea.split(/[\t;|]+/).map(c => c.trim());
+                
+                if (columnas.length >= 4) {
+                    const nombre = columnas[0];
+                    const rut = columnas[1] || '0.000.000-0';
+                    const turno = columnas[2] || 'T1';
+                    const codigo = columnas[3].toUpperCase();
+                    const password = columnas[4] || '0000';
+                    const cargo = columnas[5] || 'Cajero Multifuncional';
+                    
+                    if (nombre && codigo && codigo !== 'ADMIN' && /^\d+$/.test(password)) {
+                        cajerosImportados.push({
+                            id: `caj-${Date.now()}-${i}`,
+                            nombre: nombre,
+                            rut: rut,
+                            turno: turno,
+                            codigo: codigo,
+                            password: password,
+                            cargo: cargo,
+                            activo: true
+                        });
+                    }
+                }
+            }
+            
+            if (cajerosImportados.length === 0) {
+                mostrarNotificacion('No se pudieron procesar los datos. Verifica el formato.', 'error');
+                return;
+            }
+            
+            if (confirm(`¿Importar ${cajerosImportados.length} cajeros?\n\n⚠️ Esto agregará los cajeros a la lista existente.`)) {
+                importarCajeros();
+            }
+        } catch (error) {
+            console.error('Error al procesar datos pegados:', error);
+            mostrarNotificacion('❌ Error al procesar datos: ' + error.message, 'error');
         }
-        
-        if (confirm(`¿Importar ${cajerosImportados.length} cajeros?\n\n⚠️ Esto agregará los cajeros a la lista existente.`)) {
-            importarCajeros();
-        }
-        
-        document.getElementById('paste-zone-cajeros').value = '';
     }
 
     function importarCajeros() {
-        let cajerosActuales = obtenerDatos('cajeros');
-        let agregados = 0;
-        let duplicados = 0;
-        
-        cajerosImportados.forEach(nuevo => {
-            // Verificar que no exista código duplicado
-            const existe = cajerosActuales.find(c => c.codigo === nuevo.codigo);
-            if (existe) {
-                duplicados++;
-            } else {
-                cajerosActuales.push(nuevo);
-                agregados++;
+        try {
+            let cajerosActuales = obtenerDatos('cajeros');
+            let agregados = 0;
+            let duplicados = 0;
+            
+            cajerosImportados.forEach(nuevo => {
+                // Verificar que no exista código duplicado
+                const existe = cajerosActuales.find(c => c.codigo === nuevo.codigo);
+                if (existe) {
+                    duplicados++;
+                } else {
+                    cajerosActuales.push(nuevo);
+                    agregados++;
+                }
+            });
+            
+            if (agregados === 0) {
+                mostrarNotificacion(`⚠️ Todos los cajeros (${duplicados}) ya existen en el sistema`, 'warning');
+                cajerosImportados = []; // Limpiar
+                return;
             }
-        });
-        
-        guardarDatos('cajeros', cajerosActuales);
-        cargarCajeros();
-        
-        let mensaje = `✅ ${agregados} cajeros importados`;
-        if (duplicados > 0) {
-            mensaje += ` • ${duplicados} omitidos (códigos duplicados)`;
+            
+            // GUARDAR CON VERIFICACIÓN
+            guardarDatos('cajeros', cajerosActuales);
+            
+            // VERIFICAR QUE SE GUARDÓ CORRECTAMENTE
+            const verificacion = obtenerDatos('cajeros');
+            if (verificacion.length !== cajerosActuales.length) {
+                throw new Error('Error de verificación: Los datos no se guardaron correctamente en localStorage');
+            }
+            
+            // Recargar lista
+            cargarCajeros();
+            
+            let mensaje = `✅ ${agregados} cajeros importados y guardados correctamente`;
+            if (duplicados > 0) {
+                mensaje += ` • ${duplicados} omitidos (códigos duplicados)`;
+            }
+            
+            mostrarNotificacion(mensaje, 'success');
+            
+            // Limpiar variable de importación
+            cajerosImportados = [];
+            
+            // Limpiar textarea si existe
+            const textarea = document.getElementById('paste-zone-cajeros');
+            if (textarea) textarea.value = '';
+            
+            // Registrar en auditoría
+            registrarAuditoria({
+                cajeroId: cajeroActual.id,
+                cajeroNombre: cajeroActual.nombre,
+                cajeroCodigo: cajeroActual.codigo,
+                tipo: 'importacion_cajeros',
+                categoria: 'sistema',
+                itemNombre: `Importación de ${agregados} cajeros`,
+                cantidad: agregados,
+                stockAnterior: cajerosActuales.length - agregados,
+                stockNuevo: cajerosActuales.length
+            });
+            
+        } catch (error) {
+            console.error('Error al importar cajeros:', error);
+            mostrarNotificacion('❌ Error al guardar: ' + error.message, 'error');
         }
-        
-        mostrarNotificacion(mensaje, 'success');
-        
-        // Registrar en auditoría
-        registrarAuditoria({
-            cajeroId: cajeroActual.id,
-            cajeroNombre: cajeroActual.nombre,
-            cajeroCodigo: cajeroActual.codigo,
-            tipo: 'importacion_cajeros',
-            categoria: 'sistema',
-            itemNombre: `Importación de ${agregados} cajeros`,
-            cantidad: agregados,
-            stockAnterior: cajerosActuales.length - agregados,
-            stockNuevo: cajerosActuales.length
-        });
     }
 
     function exportarCajerosExcel() {
-        const cajeros = obtenerDatos('cajeros');
-        
-        // Filtrar el admin del export (por seguridad)
-        const cajerosExportar = cajeros.filter(c => c.codigo !== 'ADMIN');
-        
-        if (cajerosExportar.length === 0) {
-            mostrarNotificacion('No hay cajeros para exportar (solo existe el admin)', 'warning');
-            return;
+        try {
+            const cajeros = obtenerDatos('cajeros');
+            
+            // Filtrar el admin del export (por seguridad)
+            const cajerosExportar = cajeros.filter(c => c.codigo !== 'ADMIN');
+            
+            if (cajerosExportar.length === 0) {
+                mostrarNotificacion('No hay cajeros para exportar (solo existe el admin)', 'warning');
+                return;
+            }
+            
+            const datos = cajerosExportar.map(c => ({
+                'Nombre': c.nombre,
+                'RUT': c.rut,
+                'Turno': c.turno,
+                'Código': c.codigo,
+                'Contraseña': c.password,
+                'Cargo': c.cargo,
+                'Activo': c.activo ? 'Sí' : 'No'
+            }));
+            
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(datos);
+            
+            ws['!cols'] = [
+                { wch: 25 }, { wch: 15 }, { wch: 10 }, 
+                { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 10 }
+            ];
+            
+            XLSX.utils.book_append_sheet(wb, ws, 'Cajeros');
+            
+            // Agregar hoja de instrucciones
+            const instrucciones = [
+                ['INSTRUCCIONES DE IMPORTACIÓN'],
+                [''],
+                ['1. No modifique la estructura de columnas'],
+                ['2. El código ADMIN está reservado y no se importará'],
+                ['3. Las contraseñas deben ser solo números (1-6 dígitos)'],
+                ['4. Los turnos válidos son: T1, T2, T3, PT, APOYO'],
+                ['5. Los cargos válidos son:'],
+                ['   - Cajero Multifuncional'],
+                ['   - Cajero de Operaciones'],
+                ['   - Cajero de Procesos'],
+                ['   - Encargado'],
+                ['   - Corporativo'],
+                [''],
+                ['Formato de importación:'],
+                ['Nombre | RUT | Turno | Código | Contraseña | Cargo']
+            ];
+            const wsInstrucciones = XLSX.utils.aoa_to_sheet(instrucciones);
+            XLSX.utils.book_append_sheet(wb, wsInstrucciones, 'Instrucciones');
+            
+            const fecha = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `cajeros_${fecha}.xlsx`);
+            
+            mostrarNotificacion(`${cajerosExportar.length} cajeros exportados`, 'success');
+        } catch (error) {
+            console.error('Error al exportar:', error);
+            mostrarNotificacion('❌ Error al exportar: ' + error.message, 'error');
         }
-        
-        const datos = cajerosExportar.map(c => ({
-            'Nombre': c.nombre,
-            'RUT': c.rut,
-            'Turno': c.turno,
-            'Código': c.codigo,
-            'Contraseña': c.password,
-            'Cargo': c.cargo,
-            'Activo': c.activo ? 'Sí' : 'No'
-        }));
-        
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(datos);
-        
-        ws['!cols'] = [
-            { wch: 25 }, { wch: 15 }, { wch: 10 }, 
-            { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 10 }
-        ];
-        
-        XLSX.utils.book_append_sheet(wb, ws, 'Cajeros');
-        
-        // Agregar hoja de instrucciones
-        const instrucciones = [
-            ['INSTRUCCIONES DE IMPORTACIÓN'],
-            [''],
-            ['1. No modifique la estructura de columnas'],
-            ['2. El código ADMIN está reservado y no se importará'],
-            ['3. Las contraseñas deben ser solo números (1-6 dígitos)'],
-            ['4. Los turnos válidos son: T1, T2, T3, PT, APOYO'],
-            ['5. Los cargos válidos son:'],
-            ['   - Cajero Multifuncional'],
-            ['   - Cajero de Operaciones'],
-            ['   - Cajero de Procesos'],
-            ['   - Encargado'],
-            ['   - Corporativo'],
-            [''],
-            ['Formato de importación:'],
-            ['Nombre | RUT | Turno | Código | Contraseña | Cargo']
-        ];
-        const wsInstrucciones = XLSX.utils.aoa_to_sheet(instrucciones);
-        XLSX.utils.book_append_sheet(wb, wsInstrucciones, 'Instrucciones');
-        
-        const fecha = new Date().toISOString().split('T')[0];
-        XLSX.writeFile(wb, `cajeros_${fecha}.xlsx`);
-        
-        mostrarNotificacion(`${cajerosExportar.length} cajeros exportados`, 'success');
     }
 </script>
 
