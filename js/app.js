@@ -1535,162 +1535,296 @@ function mostrarTab(tab) {
     mostrarTabDinamica(tab);
 }
 
-// Variable global para datos pendientes
-let datosPendientes = null;
-let tipoImportacion = ''; // 'cajeros', 'productos', 'categorias'
+// ==========================================
+// FUNCIONES DE BACKUP Y RESET PARA ADMIN
+// ==========================================
 
-function mostrarBotonForzarGuardado(cantidad, tipo) {
-    datosPendientes = {
-        tipo: tipo,
-        cantidad: cantidad,
-        timestamp: new Date().toISOString()
-    };
-    tipoImportacion = tipo;
+/**
+ * Exporta todo el localStorage a un archivo JSON descargable
+ * Solo disponible para administradores
+ */
+function exportarLocalStorageCompleto() {
+    if (!verificarSesion()) return;
     
-    const container = document.getElementById('force-save-container');
-    const countSpan = document.getElementById('pending-count');
-    
-    if (container && countSpan) {
-        container.style.display = 'block';
-        countSpan.textContent = cantidad;
-        
-        // Scroll al botón
-        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
+    if (!esAdmin) {
+        mostrarNotificacion('Solo el administrador puede exportar los datos', 'error');
+        return;
     }
-}
-
-function forzarGuardadoCajeros() {
-    const btn = document.getElementById('btn-force-save');
-    const statusDiv = document.getElementById('save-status');
-    
-    if (!btn || !datosPendientes) return;
-    
-    btn.disabled = true;
-    btn.classList.add('saving');
-    btn.innerHTML = '⏳ Guardando...';
-    statusDiv.className = 'save-status';
-    statusDiv.style.display = 'none';
     
     try {
-        // 1. Verificar espacio disponible en localStorage
-        const espacioUsado = JSON.stringify(localStorage).length;
-        const espacioMaximo = 5 * 1024 * 1024; // 5MB típico
-        const espacioDisponible = espacioMaximo - espacioUsado;
+        // Recolectar todas las claves del localStorage del sistema
+        const datosExportar = {};
+        const keysSistema = [
+            'inventario_categorias',
+            'inventario_cajeros',
+            'inventario_auditoria',
+            'inventario_sesion',
+            'conteo_en_progreso',
+            'cigarrillos_sistema',
+            'historial_conteos'
+        ];
         
-        console.log(`Espacio usado: ${(espacioUsado/1024).toFixed(2)}KB / ${(espacioMaximo/1024).toFixed(2)}KB`);
+        // Agregar claves de categorías dinámicas
+        const categorias = obtenerCategorias();
+        categorias.forEach(cat => {
+            keysSistema.push(`inventario_${cat.id}`);
+        });
         
-        if (espacioDisponible < 1024) { // Menos de 1KB libre
-            throw new Error(`Espacio insuficiente en localStorage. Usado: ${(espacioUsado/1024).toFixed(2)}KB. Limpie el historial o exporte datos antiguos.`);
-        }
-        
-        // 2. Intentar guardado con retry
-        let intentos = 0;
-        const maxIntentos = 3;
-        let guardadoExitoso = false;
-        
-        while (intentos < maxIntentos && !guardadoExitoso) {
-            try {
-                // Guardar
-                guardarDatos('cajeros', cajerosActuales);
-                
-                // Verificación estricta
-                const verificacion = localStorage.getItem('inventario_cajeros');
-                if (!verificacion) {
-                    throw new Error('localStorage retornó null después de guardar');
-                }
-                
-                const datosVerificados = JSON.parse(verificacion);
-                if (datosVerificados.length !== cajerosActuales.length) {
-                    throw new Error(`Discrepancia en conteo: esperado ${cajerosActuales.length}, encontrado ${datosVerificados.length}`);
-                }
-                
-                guardadoExitoso = true;
-                
-            } catch (err) {
-                intentos++;
-                console.warn(`Intento ${intentos} fallido:`, err);
-                if (intentos < maxIntentos) {
-                    // Esperar antes de reintentar
-                    const delay = intentos * 100; // 100ms, 200ms...
-                    const start = Date.now();
-                    while (Date.now() - start < delay) {} // Busy wait simple
-                } else {
-                    throw err;
+        // Recolectar datos
+        keysSistema.forEach(key => {
+            const valor = localStorage.getItem(key);
+            if (valor !== null) {
+                try {
+                    datosExportar[key] = JSON.parse(valor);
+                } catch(e) {
+                    datosExportar[key] = valor; // Si no es JSON, guardar como string
                 }
             }
-        }
+        });
         
-        if (guardadoExitoso) {
-            // Éxito
-            statusDiv.className = 'save-status show success';
-            statusDiv.innerHTML = `
-                <strong>✅ Guardado exitoso</strong><br>
-                ${cajerosActuales.length} cajeros almacenados en localStorage.<br>
-                <small>Espacio usado: ${(JSON.stringify(localStorage).length/1024).toFixed(2)}KB</small>
-            `;
-            
-            btn.innerHTML = '✓ Guardado Completado';
-            btn.style.background = '#059669';
-            
-            // Recargar lista y limpiar
-            cargarCajeros();
-            cajerosImportados = [];
-            datosPendientes = null;
-            
-            // Registrar auditoría
-            registrarAuditoria({
-                cajeroId: cajeroActual.id,
-                cajeroNombre: cajeroActual.nombre,
-                cajeroCodigo: cajeroActual.codigo,
-                tipo: 'importacion_cajeros',
-                categoria: 'sistema',
-                itemNombre: `Importación forzada de ${cajerosActuales.length} cajeros`,
-                cantidad: cajerosActuales.length,
-                stockAnterior: cajerosActuales.length - cajerosImportados.length,
-                stockNuevo: cajerosActuales.length
-            });
-            
-            // Ocultar después de 3 segundos
-            setTimeout(() => {
-                document.getElementById('force-save-container').style.display = 'none';
-                btn.disabled = false;
-                btn.classList.remove('saving');
-                btn.innerHTML = '💾 Forzar Guardado Local';
-            }, 3000);
-        }
+        // Agregar metadata
+        const backupCompleto = {
+            metadata: {
+                fechaExportacion: new Date().toISOString(),
+                sistema: 'Sistema de Inventario',
+                version: '1.0',
+                cajero: cajeroActual.nombre,
+                codigo: cajeroActual.codigo,
+                totalCategorias: categorias.length,
+                totalRegistros: Object.keys(datosExportar).length
+            },
+            datos: datosExportar
+        };
         
-    } catch (error) {
-        console.error('Error en forzar guardado:', error);
-        statusDiv.className = 'save-status show error';
-        statusDiv.innerHTML = `
-            <strong>❌ Error al guardar</strong><br>
-            ${error.message}<br>
-            <small>Intenta descargar el backup JSON como alternativa</small>
-        `;
-        btn.disabled = false;
-        btn.classList.remove('saving');
-        btn.innerHTML = '💾 Reintentar Guardado';
-    }
-}
-
-// Función de backup alternativo si localStorage falla
-function descargarBackupJSON() {
-    try {
-        const cajeros = obtenerDatos('cajeros');
-        const dataStr = JSON.stringify(cajeros, null, 2);
+        // Crear archivo y descargar
+        const dataStr = JSON.stringify(backupCompleto, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         
         const link = document.createElement('a');
+        const fecha = new Date().toISOString().split('T')[0];
         link.href = url;
-        link.download = `cajeros_backup_${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `backup_inventario_${fecha}_${cajeroActual.codigo}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
-        mostrarNotificacion('Backup descargado. Puedes importarlo manualmente más tarde.', 'success');
+        // Registrar en auditoría
+        registrarAuditoria({
+            cajeroId: cajeroActual.id,
+            cajeroNombre: cajeroActual.nombre,
+            cajeroCodigo: cajeroActual.codigo,
+            tipo: 'backup_sistema',
+            categoria: 'sistema',
+            itemNombre: 'Exportación completa del sistema',
+            cantidad: Object.keys(datosExportar).length,
+            stockAnterior: 0,
+            stockNuevo: 0
+        });
+        
+        mostrarNotificacion(`✅ Backup exportado: ${Object.keys(datosExportar).length} registros guardados`, 'success');
+        
     } catch (error) {
-        mostrarNotificacion('Error al generar backup: ' + error.message, 'error');
+        console.error('Error al exportar:', error);
+        mostrarNotificacion('Error al exportar datos', 'error');
     }
+}
+
+/**
+ * Limpia completamente el localStorage del sistema
+ * Solo disponible para administradores - REQUIERE CONFIRMACIÓN DOBLE
+ */
+function limpiarLocalStorageCompleto() {
+    if (!verificarSesion()) return;
+    
+    const esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
+    if (!esAdmin) {
+        mostrarNotificacion('Solo el administrador puede limpiar el sistema', 'error');
+        return;
+    }
+    
+    // Primera confirmación
+    if (!confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsto eliminará TODOS los datos del sistema:\n✓ Categorías\n✓ Productos\n✓ Cajeros (excepto admin)\n✓ Auditoría\n✓ Conteos de cigarrillos\n✓ Historial\n\nEsta acción NO se puede deshacer.\n\n¿Deseas continuar?')) {
+        return;
+    }
+    
+    // Segunda confirmación con código
+    const confirmacion = prompt('🔒 CONFIRMACIÓN DE SEGURIDAD\n\nEscribe el código del administrador para confirmar la eliminación total:');
+    
+    if (confirmacion !== cajeroActual.codigo) {
+        mostrarNotificacion('Código incorrecto. Operación cancelada.', 'error');
+        return;
+    }
+    
+    // Tercera confirmación escribiendo ELIMINAR
+    const confirmacionFinal = prompt('⚠️ ÚLTIMA CONFIRMACIÓN\n\nEscribe "ELIMINAR" en mayúsculas para borrar todo el sistema:');
+    
+    if (confirmacionFinal !== 'ELIMINAR') {
+        mostrarNotificacion('Operación cancelada', 'warning');
+        return;
+    }
+    
+    try {
+        // Guardar info del admin antes de borrar
+        const adminBackup = {
+            id: cajeroActual.id,
+            nombre: cajeroActual.nombre,
+            codigo: cajeroActual.codigo,
+            password: '63717' // Password por defecto del admin
+        };
+        
+        // Obtener lista de todas las claves a eliminar
+        const keysToRemove = [];
+        const categorias = obtenerCategorias();
+        
+        categorias.forEach(cat => {
+            keysToRemove.push(`inventario_${cat.id}`);
+        });
+        
+        keysToRemove.push(
+            'inventario_categorias',
+            'inventario_auditoria',
+            'conteo_en_progreso',
+            'cigarrillos_sistema',
+            'historial_conteos'
+        );
+        
+        // No eliminamos cajeros ni sesión todavía para mantener el acceso
+        
+        // Eliminar todas las claves
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
+        
+        // Recrear datos mínimos del sistema
+        const CATEGORIAS_DEFAULT = [
+            { id: 'sa', nombre: 'Categoría SA', icono: '🌭', descripcion: 'Completería', protegida: false },
+            { id: 'panaderia', nombre: 'Panadería', icono: '🥖', descripcion: 'Productos de panadería', protegida: false }
+        ];
+        
+        localStorage.setItem('inventario_categorias', JSON.stringify(CATEGORIAS_DEFAULT));
+        localStorage.setItem('inventario_sa', JSON.stringify([
+            { id: 'sa-1', nombre: 'Pan de Completo', cantidad: 50, unidad: 'unidades', minimo: 20 },
+            { id: 'sa-2', nombre: 'Vienesas', cantidad: 100, unidad: 'unidades', minimo: 30 }
+        ]));
+        localStorage.setItem('inventario_panaderia', JSON.stringify([
+            { id: 'pan-1', nombre: 'Muffin', cantidad: 24, unidad: 'unidades', minimo: 12 }
+        ]));
+        
+        // Asegurar que el admin existe
+        const cajeros = [adminBackup];
+        localStorage.setItem('inventario_cajeros', JSON.stringify(cajeros));
+        
+        // Registrar la limpieza en auditoría (solo este registro quedará)
+        const auditoriaLimpia = [{
+            id: `aud-${Date.now()}`,
+            fecha: new Date().toISOString(),
+            cajeroId: cajeroActual.id,
+            cajeroNombre: cajeroActual.nombre,
+            cajeroCodigo: cajeroActual.codigo,
+            tipo: 'limpieza_total_sistema',
+            categoria: 'sistema',
+            itemNombre: 'Limpieza completa del sistema',
+            cantidad: 0,
+            stockAnterior: categorias.length,
+            stockNuevo: 2
+        }];
+        localStorage.setItem('inventario_auditoria', JSON.stringify(auditoriaLimpia));
+        
+        mostrarNotificacion('🗑️ Sistema limpiado completamente. Recargando...', 'success');
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error al limpiar:', error);
+        mostrarNotificacion('Error al limpiar el sistema', 'error');
+    }
+}
+
+/**
+ * Importa datos desde un archivo JSON de backup
+ * Solo disponible para administradores
+ */
+function importarLocalStorageCompleto(event) {
+    if (!verificarSesion()) return;
+    
+    const esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
+    if (!esAdmin) {
+        mostrarNotificacion('Solo el administrador puede importar datos', 'error');
+        return;
+    }
+    
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        try {
+            const backup = JSON.parse(e.target.result);
+            
+            if (!backup.datos || !backup.metadata) {
+                mostrarNotificacion('Archivo de backup inválido', 'error');
+                return;
+            }
+            
+            // Confirmar importación
+            const fechaBackup = new Date(backup.metadata.fechaExportacion).toLocaleString('es-ES');
+            if (!confirm(`¿Importar backup del ${fechaBackup}?\n\n⚠️ Esto reemplazará todos los datos actuales.\n\nCategorías en backup: ${backup.metadata.totalCategorias || 'N/A'}\nRegistros: ${backup.metadata.totalRegistros || Object.keys(backup.datos).length}\n\n¿Continuar?`)) {
+                return;
+            }
+            
+            // Limpiar todo primero
+            localStorage.clear();
+            
+            // Restaurar datos
+            Object.keys(backup.datos).forEach(key => {
+                const valor = backup.datos[key];
+                if (typeof valor === 'object') {
+                    localStorage.setItem(key, JSON.stringify(valor));
+                } else {
+                    localStorage.setItem(key, valor);
+                }
+            });
+            
+            // Asegurar que la sesión actual se mantenga (recreamos)
+            const sesion = {
+                cajeroId: cajeroActual.id,
+                cajeroNombre: cajeroActual.nombre,
+                cajeroCodigo: cajeroActual.codigo,
+                cajeroCargo: cajeroActual.cargo,
+                inicio: new Date().getTime()
+            };
+            localStorage.setItem('inventario_sesion', JSON.stringify(sesion));
+            
+            // Registrar en auditoría
+            registrarAuditoria({
+                cajeroId: cajeroActual.id,
+                cajeroNombre: cajeroActual.nombre,
+                cajeroCodigo: cajeroActual.codigo,
+                tipo: 'restauracion_backup',
+                categoria: 'sistema',
+                itemNombre: `Restauración desde backup del ${fechaBackup}`,
+                cantidad: backup.metadata.totalRegistros || Object.keys(backup.datos).length,
+                stockAnterior: 0,
+                stockNuevo: backup.metadata.totalCategorias || 0
+            });
+            
+            mostrarNotificacion('✅ Backup restaurado correctamente. Recargando...', 'success');
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Error al importar:', error);
+            mostrarNotificacion('Error al leer el archivo de backup', 'error');
+        }
+    };
+    
+    reader.readAsText(file);
 }
