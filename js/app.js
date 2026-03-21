@@ -51,45 +51,36 @@ const STORAGE_KEYS = {
 // Variable global para cajero actual
 let cajeroActual = null;
 
+
 // ==========================================
-// INICIALIZACIÓN CORRECTA (VERSIÓN FINAL)
+// INICIALIZACIÓN CORREGIDA (SIN DATOS POR DEFECTO)
 // ==========================================
 
 function inicializarDatos() {
-    // Inicializar categorías si no existen
+    // Solo inicializar la estructura base, sin categorías ni datos de ejemplo
+    
+    // Inicializar categorías VACÍAS si no existen
     if (!localStorage.getItem(STORAGE_KEYS.categorias)) {
-        localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify(CATEGORIAS_DEFAULT));
+        // ← CAMBIO: Array vacío en lugar de CATEGORIAS_DEFAULT
+        localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify([]));
     }
     
-    // Inicializar datos de cada categoría
-    const categorias = obtenerCategorias();
-    categorias.forEach(cat => {
-        const key = `inventario_${cat.id}`;
-        if (!localStorage.getItem(key) && DATOS_DEFAULT[cat.id]) {
-            localStorage.setItem(key, JSON.stringify(DATOS_DEFAULT[cat.id]));
-        } else if (!localStorage.getItem(key)) {
-            localStorage.setItem(key, JSON.stringify([]));
-        }
-    });
-    
-    // Inicializar cajeros (solo si no existen)
+    // Inicializar cajeros (solo admin por defecto) si no existen
     const cajerosKey = STORAGE_KEYS.cajeros;
     const cajerosExistentes = localStorage.getItem(cajerosKey);
     
     if (!cajerosExistentes) {
+        // Mantener solo el admin por defecto
         localStorage.setItem(cajerosKey, JSON.stringify(DATOS_DEFAULT.cajeros));
     }
     
-    // Inicializar auditoría
+    // Inicializar auditoría vacía
     if (!localStorage.getItem(STORAGE_KEYS.auditoria)) {
         localStorage.setItem(STORAGE_KEYS.auditoria, JSON.stringify([]));
     }
     
     actualizarNavegacion();
     mostrarUsuarioActual();
-    
-    // NOTA: cargarDashboardDividido() se llama explícitamente desde index.html
-    // después de inicializarDatos() para evitar problemas de timing
 }
 
 // ==========================================
