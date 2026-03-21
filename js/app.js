@@ -9,21 +9,8 @@ const CATEGORIAS_DEFAULT = [
 ];
 
 // Datos por defecto
-const DATOS_DEFAULT = {
-    sa: [
-        { id: 'sa-1', nombre: 'Pan de Completo', cantidad: 50, unidad: 'unidades', minimo: 20 },
-        { id: 'sa-2', nombre: 'Vienesas', cantidad: 100, unidad: 'unidades', minimo: 30 },
-        { id: 'sa-3', nombre: 'Tomate', cantidad: 5, unidad: 'kg', minimo: 2 },
-        { id: 'sa-4', nombre: 'Palta', cantidad: 10, unidad: 'unidades', minimo: 5 },
-        { id: 'sa-5', nombre: 'Mayonesa', cantidad: 3, unidad: 'litros', minimo: 1 }
-    ],
-    panaderia: [
-        { id: 'pan-1', nombre: 'Muffin', cantidad: 24, unidad: 'unidades', minimo: 12 },
-        { id: 'pan-2', nombre: 'Marraqueta', cantidad: 30, unidad: 'unidades', minimo: 15 },
-        { id: 'pan-3', nombre: 'Hallullas', cantidad: 40, unidad: 'unidades', minimo: 20 },
-        { id: 'pan-4', nombre: 'Dobladitas', cantidad: 25, unidad: 'unidades', minimo: 10 },
-        { id: 'pan-5', nombre: 'Ciabatta', cantidad: 15, unidad: 'unidades', minimo: 8 }
-    ],
+const CATEGORIAS_DEFAULT = [];
+
     cajeros: [
         { 
             id: 'admin-1', 
