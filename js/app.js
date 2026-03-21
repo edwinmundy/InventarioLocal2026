@@ -43,6 +43,10 @@ let cajeroActual = null;
 // INICIALIZACIÓN CORREGIDA (SIN DATOS POR DEFECTO)
 // ==========================================
 
+// ==========================================
+// INICIALIZACIÓN CORREGIDA (SIN DATOS POR DEFECTO)
+// ==========================================
+
 function inicializarDatos() {
     // Solo inicializar la estructura base, sin categorías ni datos de ejemplo
     
@@ -69,7 +73,6 @@ function inicializarDatos() {
     actualizarNavegacion();
     mostrarUsuarioActual();
 }
-
 // ==========================================
 // SISTEMA DE CATEGORÍAS DINÁMICAS
 // ==========================================
