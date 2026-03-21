@@ -11,7 +11,7 @@ const DATOS_DEFAULT = {
             rut: '0.000.000-0', 
             turno: 'ADMIN', 
             codigo: 'ADMIN', 
-            password: '63717',
+            password: '63717',  // ← CORREGIDO: 5 dígitos, no 6
             cargo: 'Corporativo',
             activo: true 
         }
@@ -47,6 +47,14 @@ let cajeroActual = null;
 // ==========================================
 
 function inicializarDatos() {
+    // CORREGIDO: Primero inicializar cajeros para que verificarSesion funcione
+    const cajerosKey = STORAGE_KEYS.cajeros;
+    const cajerosExistentes = localStorage.getItem(cajerosKey);
+    
+    if (!cajerosExistentes) {
+        localStorage.setItem(cajerosKey, JSON.stringify(DATOS_DEFAULT.cajeros));
+    }
+    
     // Inicializar categorías como array vacío si no existen
     if (!localStorage.getItem(STORAGE_KEYS.categorias)) {
         localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify([]));
@@ -61,19 +69,13 @@ function inicializarDatos() {
         }
     });
     
-    // Inicializar cajeros (solo si no existen - solo admin por defecto)
-    const cajerosKey = STORAGE_KEYS.cajeros;
-    const cajerosExistentes = localStorage.getItem(cajerosKey);
-    
-    if (!cajerosExistentes) {
-        localStorage.setItem(cajerosKey, JSON.stringify(DATOS_DEFAULT.cajeros));
-    }
-    
     // Inicializar auditoría
     if (!localStorage.getItem(STORAGE_KEYS.auditoria)) {
         localStorage.setItem(STORAGE_KEYS.auditoria, JSON.stringify([]));
     }
     
+    // CORREGIDO: Primero verificar sesión, luego actualizar navegación
+    verificarSesion(); // Esto inicializa cajeroActual
     actualizarNavegacion();
     mostrarUsuarioActual();
 }
@@ -318,6 +320,7 @@ function iniciarSesion(event) {
     const codigo = document.getElementById('login-codigo').value.toUpperCase().trim();
     const password = document.getElementById('login-password').value;
     
+    // CORREGIDO: Permitir 1-6 dígitos para todos, incluido admin
     if (!/^\d{1,6}$/.test(password)) {
         document.getElementById('login-error').textContent = '❌ La contraseña debe contener entre 1 y 6 dígitos numéricos';
         document.getElementById('login-error').style.display = 'block';
@@ -386,6 +389,19 @@ function mostrarUsuarioActual() {
 function actualizarNavegacion() {
     const nav = document.getElementById('main-nav');
     if (!nav) return;
+    
+    // CORREGIDO: Asegurar que cajeroActual esté inicializado
+    if (!cajeroActual) {
+        const sesion = obtenerSesionActiva();
+        if (sesion) {
+            cajeroActual = {
+                id: sesion.cajeroId,
+                nombre: sesion.cajeroNombre,
+                codigo: sesion.cajeroCodigo,
+                cargo: sesion.cajeroCargo
+            };
+        }
+    }
     
     const categorias = obtenerCategorias();
     const paginaActual = window.location.pathname.split('/').pop() || 'index.html';
@@ -1016,18 +1032,15 @@ function guardarCajero(event) {
     const password = document.getElementById('cajero-password').value;
     const esAdmin = id === 'admin-1';
     
+    // Validar contraseña si se proporcionó
     if (password) {
         if (!/^\d+$/.test(password)) {
             mostrarNotificacion('La contraseña debe contener solo números', 'error');
             return;
         }
         
-        if (esAdmin && password.length !== 6) {
-            mostrarNotificacion('La contraseña del admin debe tener exactamente 6 dígitos', 'error');
-            return;
-        }
-        
-        if (!esAdmin && (password.length < 1 || password.length > 6)) {
+        // Todos los usuarios (incluido admin): entre 1 y 6 dígitos
+        if (password.length < 1 || password.length > 6) {
             mostrarNotificacion('La contraseña debe tener entre 1 y 6 dígitos numéricos', 'error');
             return;
         }
@@ -1658,14 +1671,15 @@ function limpiarLocalStorageCompleto() {
     }
     
     try {
-        // Guardar info del admin antes de borrar
+
+                // Guardar info del admin antes de borrar
         const adminBackup = {
             id: cajeroActual.id,
             nombre: cajeroActual.nombre,
             rut: '0.000.000-0',
             turno: 'ADMIN',
             codigo: 'ADMIN',
-            password: '63717',
+            password: '63717',  // ← CORREGIDO: 5 dígitos
             cargo: 'Corporativo',
             activo: true
         };
