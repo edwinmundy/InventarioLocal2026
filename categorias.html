@@ -353,65 +353,6 @@
             font-size: 0.9rem;
             resize: vertical;
         }
-        .force-save-btn {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    transition: all 0.3s;
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
-}
-
-.force-save-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 12px rgba(16, 185, 129, 0.4);
-}
-
-.force-save-btn:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.force-save-btn.saving {
-    animation: pulse 1.5s infinite;
-}
-
-.save-status {
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    display: none;
-}
-
-.save-status.show {
-    display: block;
-}
-
-.save-status.success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #10b981;
-}
-
-.save-status.error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #ef4444;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
     </style>
 </head>
 <body autocomplete="off">
@@ -468,6 +409,39 @@
                         </button>
                     </div>
                 </div>
+                <!-- SECCIÓN DE ADMIN (SOLO ADMIN) -->
+                <div id="admin-section" class="admin-backup-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed var(--border);">
+                    <h4 style="margin-bottom: 16px; color: var(--danger); display: flex; align-items: center; gap: 8px;">
+                        ⚠️ Zona de Administración
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <!-- Exportar Backup -->
+                        <button onclick="event.stopPropagation(); exportarLocalStorageCompleto()" class="btn-export" style="background: #3b82f6; color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            💾 Guardar Todo (Backup)
+                        </button>
+                        
+                        <!-- Importar Backup -->
+                        <div style="position: relative;">
+                            <input type="file" id="input-restore-backup" accept=".json" style="display: none;" onchange="importarLocalStorageCompleto(event)">
+                            <button onclick="event.stopPropagation(); document.getElementById('input-restore-backup').click()" class="btn-export" style="background: #8b5cf6; color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                📂 Cargar Backup
+                            </button>
+                        </div>
+                        
+                        <!-- Limpiar Todo -->
+                        <button onclick="event.stopPropagation(); limpiarLocalStorageCompleto()" class="btn-delete" style="background: var(--danger); color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            🗑️ Borrar Todo
+                        </button>
+                    </div>
+                    
+                    <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-light);">
+                        💡 <strong>Guardar Todo:</strong> Exporta todos los datos a un archivo JSON.<br>
+                        💡 <strong>Cargar Backup:</strong> Restaura datos desde un archivo JSON previamente guardado.<br>
+                        ⚠️ <strong>Borrar Todo:</strong> Elimina permanentemente todos los datos. Requiere confirmación.
+                    </p>
+                </div>
+
             </div>
 
             <!-- Formulario de Nueva Categoría -->
@@ -780,20 +754,31 @@
         });
 
         function configurarInterfazCategorias() {
-            const esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
-            const importSection = document.getElementById('import-section-cat');
-            const formNuevaCat = document.getElementById('form-nueva-cat-section');
-            
-            // Solo admin ve la sección de importación/exportación y el formulario de nueva categoría
-            if (esAdmin) {
-                if (importSection) importSection.style.display = 'block';
-                if (formNuevaCat) formNuevaCat.style.display = 'block';
-                configurarEventosImportacionCat();
-            } else {
-                if (importSection) importSection.style.display = 'none';
-                if (formNuevaCat) formNuevaCat.style.display = 'none';
-            }
-        }
+    const esAdmin = cajeroActual && cajeroActual.codigo === 'ADMIN';
+    const importSection = document.getElementById('import-section-cat');
+    const formNuevaCat = document.getElementById('form-nueva-cat-section');
+    const adminSection = document.getElementById('admin-section');
+    
+    // Solo admin ve la sección de importación/exportación
+    if (esAdmin) {
+        if (importSection) importSection.style.display = 'block';
+        if (formNuevaCat) formNuevaCat.style.display = 'block';
+        if (adminSection) adminSection.style.display = 'block';
+        configurarEventosImportacionCat();
+    } else {
+        if (importSection) importSection.style.display = 'none';
+        if (formNuevaCat) formNuevaCat.style.display = 'none';
+        if (adminSection) adminSection.style.display = 'none';
+    }
+    
+    // Configurar permisos en el grid de categorías
+    if (!esAdmin) {
+        // Ocultar botones de editar/eliminar en las cards de categorías
+        document.querySelectorAll('.categoria-actions .btn-edit, .categoria-actions .btn-delete').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+}
 
         function configurarEventosImportacionCat() {
             const dropZone = document.getElementById('drop-zone-cat');
@@ -942,66 +927,47 @@
         }
 
         function importarCategorias() {
-    try {
-        let categoriasActuales = obtenerCategorias();
-        let agregadas = 0;
-        let duplicadas = 0;
-        
-        categoriasImportadas.forEach(nueva => {
-            const existe = categoriasActuales.find(c => c.id === nueva.id);
-            if (existe) {
-                duplicadas++;
-            } else {
-                categoriasActuales.push(nueva);
-                // Crear storage vacío para la nueva categoría
-                guardarDatos(nueva.id, []);
-                agregadas++;
+            let categoriasActuales = obtenerCategorias();
+            let agregadas = 0;
+            let duplicadas = 0;
+            
+            categoriasImportadas.forEach(nueva => {
+                // Verificar que no exista ID duplicado
+                const existe = categoriasActuales.find(c => c.id === nueva.id);
+                if (existe) {
+                    duplicadas++;
+                } else {
+                    categoriasActuales.push(nueva);
+                    // Crear storage vacío para la nueva categoría
+                    guardarDatos(nueva.id, []);
+                    agregadas++;
+                }
+            });
+            
+            guardarCategorias(categoriasActuales);
+            cargarCategoriasAdmin();
+            
+            let mensaje = `✅ ${agregadas} categorías importadas`;
+            if (duplicadas > 0) {
+                mensaje += ` • ${duplicadas} omitidas (ID duplicado)`;
             }
-        });
-        
-        if (agregadas === 0) {
-            mostrarNotificacion(`⚠️ Todas las categorías (${duplicadas}) ya existen`, 'warning');
-            return;
+            
+            mostrarNotificacion(mensaje, 'success');
+            
+            // Registrar en auditoría
+            registrarAuditoria({
+                cajeroId: cajeroActual.id,
+                cajeroNombre: cajeroActual.nombre,
+                cajeroCodigo: cajeroActual.codigo,
+                tipo: 'importacion_categorias',
+                categoria: 'sistema',
+                itemNombre: `Importación de ${agregadas} categorías`,
+                cantidad: agregadas,
+                stockAnterior: categoriasActuales.length - agregadas,
+                stockNuevo: categoriasActuales.length
+            });
         }
-        
-        // GUARDAR CATEGORÍAS
-        guardarCategorias(categoriasActuales);
-        
-        // Verificar
-        const verificacion = obtenerCategorias();
-        if (verificacion.length !== categoriasActuales.length) {
-            throw new Error('Error al guardar categorías');
-        }
-        
-        cargarCategoriasAdmin();
-        
-        let mensaje = `✅ ${agregadas} categorías importadas`;
-        if (duplicadas > 0) {
-            mensaje += ` • ${duplicadas} omitidas (ID duplicado)`;
-        }
-        
-        mostrarNotificacion(mensaje, 'success');
-        
-        categoriasImportadas = [];
-        
-        registrarAuditoria({
-            cajeroId: cajeroActual.id,
-            cajeroNombre: cajeroActual.nombre,
-            cajeroCodigo: cajeroActual.codigo,
-            tipo: 'importacion_categorias',
-            categoria: 'sistema',
-            itemNombre: `Importación de ${agregadas} categorías`,
-            cantidad: agregadas,
-            stockAnterior: categoriasActuales.length - agregadas,
-            stockNuevo: categoriasActuales.length
-        });
-        
-    } catch (error) {
-        console.error('Error al importar categorías:', error);
-        mostrarNotificacion('❌ Error al guardar: ' + error.message, 'error');
-    }
-}
-        
+
         function exportarCategoriasExcel() {
             const categorias = obtenerCategorias();
             
