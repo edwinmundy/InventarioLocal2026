@@ -9,8 +9,21 @@ const CATEGORIAS_DEFAULT = [
 ];
 
 // Datos por defecto
-const CATEGORIAS_DEFAULT = [];
-
+const DATOS_DEFAULT = {
+    sa: [
+        { id: 'sa-1', nombre: 'Pan de Completo', cantidad: 50, unidad: 'unidades', minimo: 20 },
+        { id: 'sa-2', nombre: 'Vienesas', cantidad: 100, unidad: 'unidades', minimo: 30 },
+        { id: 'sa-3', nombre: 'Tomate', cantidad: 5, unidad: 'kg', minimo: 2 },
+        { id: 'sa-4', nombre: 'Palta', cantidad: 10, unidad: 'unidades', minimo: 5 },
+        { id: 'sa-5', nombre: 'Mayonesa', cantidad: 3, unidad: 'litros', minimo: 1 }
+    ],
+    panaderia: [
+        { id: 'pan-1', nombre: 'Muffin', cantidad: 24, unidad: 'unidades', minimo: 12 },
+        { id: 'pan-2', nombre: 'Marraqueta', cantidad: 30, unidad: 'unidades', minimo: 15 },
+        { id: 'pan-3', nombre: 'Hallullas', cantidad: 40, unidad: 'unidades', minimo: 20 },
+        { id: 'pan-4', nombre: 'Dobladitas', cantidad: 25, unidad: 'unidades', minimo: 10 },
+        { id: 'pan-5', nombre: 'Ciabatta', cantidad: 15, unidad: 'unidades', minimo: 8 }
+    ],
     cajeros: [
         { 
             id: 'admin-1', 
@@ -38,41 +51,47 @@ const STORAGE_KEYS = {
 // Variable global para cajero actual
 let cajeroActual = null;
 
-
 // ==========================================
-// INICIALIZACIÓN CORREGIDA (SIN DATOS POR DEFECTO)
-// ==========================================
-
-// ==========================================
-// INICIALIZACIÓN CORREGIDA (SIN DATOS POR DEFECTO)
+// INICIALIZACIÓN CORRECTA (VERSIÓN FINAL)
 // ==========================================
 
 function inicializarDatos() {
-    // Solo inicializar la estructura base, sin categorías ni datos de ejemplo
-    
-    // Inicializar categorías VACÍAS si no existen
+    // Inicializar categorías si no existen
     if (!localStorage.getItem(STORAGE_KEYS.categorias)) {
-        // ← CAMBIO: Array vacío en lugar de CATEGORIAS_DEFAULT
-        localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify([]));
+        localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify(CATEGORIAS_DEFAULT));
     }
     
-    // Inicializar cajeros (solo admin por defecto) si no existen
+    // Inicializar datos de cada categoría
+    const categorias = obtenerCategorias();
+    categorias.forEach(cat => {
+        const key = `inventario_${cat.id}`;
+        if (!localStorage.getItem(key) && DATOS_DEFAULT[cat.id]) {
+            localStorage.setItem(key, JSON.stringify(DATOS_DEFAULT[cat.id]));
+        } else if (!localStorage.getItem(key)) {
+            localStorage.setItem(key, JSON.stringify([]));
+        }
+    });
+    
+    // Inicializar cajeros (solo si no existen)
     const cajerosKey = STORAGE_KEYS.cajeros;
     const cajerosExistentes = localStorage.getItem(cajerosKey);
     
     if (!cajerosExistentes) {
-        // Mantener solo el admin por defecto
         localStorage.setItem(cajerosKey, JSON.stringify(DATOS_DEFAULT.cajeros));
     }
     
-    // Inicializar auditoría vacía
+    // Inicializar auditoría
     if (!localStorage.getItem(STORAGE_KEYS.auditoria)) {
         localStorage.setItem(STORAGE_KEYS.auditoria, JSON.stringify([]));
     }
     
     actualizarNavegacion();
     mostrarUsuarioActual();
+    
+    // NOTA: cargarDashboardDividido() se llama explícitamente desde index.html
+    // después de inicializarDatos() para evitar problemas de timing
 }
+
 // ==========================================
 // SISTEMA DE CATEGORÍAS DINÁMICAS
 // ==========================================
