@@ -11,7 +11,7 @@ const DATOS_DEFAULT = {
             rut: '0.000.000-0', 
             turno: 'ADMIN', 
             codigo: 'ADMIN', 
-            password: '637177',
+            password: '63717',
             cargo: 'Corporativo',
             activo: true 
         }
@@ -1665,7 +1665,7 @@ function limpiarLocalStorageCompleto() {
             rut: '0.000.000-0',
             turno: 'ADMIN',
             codigo: 'ADMIN',
-            password: '637177',
+            password: '63717',
             cargo: 'Corporativo',
             activo: true
         };
