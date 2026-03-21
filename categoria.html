@@ -126,65 +126,6 @@
             font-family: monospace;
             font-size: 0.85rem;
         }
-        .force-save-btn {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    transition: all 0.3s;
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
-}
-
-.force-save-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 12px rgba(16, 185, 129, 0.4);
-}
-
-.force-save-btn:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.force-save-btn.saving {
-    animation: pulse 1.5s infinite;
-}
-
-.save-status {
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    display: none;
-}
-
-.save-status.show {
-    display: block;
-}
-
-.save-status.success {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #10b981;
-}
-
-.save-status.error {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #ef4444;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
     </style>
 </head>
 <body>
@@ -243,6 +184,38 @@
                             📥 Descargar Excel
                         </button>
                     </div>
+                </div>
+                                <!-- SECCIÓN DE ADMIN (SOLO ADMIN) -->
+                <div id="admin-section" class="admin-backup-section" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed var(--border);">
+                    <h4 style="margin-bottom: 16px; color: var(--danger); display: flex; align-items: center; gap: 8px;">
+                        ⚠️ Zona de Administración
+                    </h4>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                        <!-- Exportar Backup -->
+                        <button onclick="event.stopPropagation(); exportarLocalStorageCompleto()" class="btn-export" style="background: #3b82f6; color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            💾 Guardar Todo (Backup)
+                        </button>
+                        
+                        <!-- Importar Backup -->
+                        <div style="position: relative;">
+                            <input type="file" id="input-restore-backup" accept=".json" style="display: none;" onchange="importarLocalStorageCompleto(event)">
+                            <button onclick="event.stopPropagation(); document.getElementById('input-restore-backup').click()" class="btn-export" style="background: #8b5cf6; color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                📂 Cargar Backup
+                            </button>
+                        </div>
+                        
+                        <!-- Limpiar Todo -->
+                        <button onclick="event.stopPropagation(); limpiarLocalStorageCompleto()" class="btn-delete" style="background: var(--danger); color: white; padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            🗑️ Borrar Todo
+                        </button>
+                    </div>
+                    
+                    <p style="margin-top: 12px; font-size: 0.85rem; color: var(--text-light);">
+                        💡 <strong>Guardar Todo:</strong> Exporta todos los datos a un archivo JSON.<br>
+                        💡 <strong>Cargar Backup:</strong> Restaura datos desde un archivo JSON previamente guardado.<br>
+                        ⚠️ <strong>Borrar Todo:</strong> Elimina permanentemente todos los datos. Requiere confirmación.
+                    </p>
                 </div>
             </div>
 
@@ -335,13 +308,38 @@
         });
 
         function configurarInterfaz() {
-            // Mostrar sección de importación solo para admin
-            const importSection = document.getElementById('import-section');
-            if (esAdmin && importSection) {
-                importSection.style.display = 'block';
-                configurarEventosImportacion();
-            }
+    // Mostrar sección de importación solo para admin
+    const importSection = document.getElementById('import-section');
+    const adminSection = document.getElementById('admin-section');
+    
+    if (esAdmin && importSection) {
+        importSection.style.display = 'block';
+        configurarEventosImportacion();
+    }
+    
+    // Mostrar sección de admin solo para admin
+    if (esAdmin && adminSection) {
+        adminSection.style.display = 'block';
+    }
+    
+    // Configurar botón de agregar item
+    const btnAgregar = document.getElementById('btn-agregar-item');
+    if (btnAgregar) {
+        if (esAdmin) {
+            btnAgregar.onclick = () => abrirModalNuevo(categoriaActualId);
+        } else {
+            btnAgregar.style.display = 'none';
         }
+    }
+    
+    // Configurar permisos en cards de items
+    if (!esAdmin) {
+        // Cajeros solo ven botones + y -, no editar/eliminar
+        document.querySelectorAll('.item-actions .btn-edit, .item-actions .btn-delete').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+}
 
         function configurarEventosImportacion() {
             const dropZone = document.getElementById('drop-zone');
@@ -493,66 +491,51 @@
         }
 
         function importarProductos() {
-    try {
-        let itemsActuales = obtenerDatos(categoriaActualId);
-        let agregados = 0;
-        let actualizados = 0;
-        
-        productosImportados.forEach(nuevo => {
-            const indexExistente = itemsActuales.findIndex(item => item.id === nuevo.id);
+            let itemsActuales = obtenerDatos(categoriaActualId);
+            let agregados = 0;
+            let actualizados = 0;
             
-            if (indexExistente !== -1) {
-                itemsActuales[indexExistente] = {
-                    ...itemsActuales[indexExistente],
-                    ...nuevo
-                };
-                actualizados++;
-            } else {
-                itemsActuales.push(nuevo);
-                agregados++;
+            productosImportados.forEach(nuevo => {
+                const indexExistente = itemsActuales.findIndex(item => item.id === nuevo.id);
+                
+                if (indexExistente !== -1) {
+                    // Actualizar existente
+                    itemsActuales[indexExistente] = {
+                        ...itemsActuales[indexExistente],
+                        ...nuevo
+                    };
+                    actualizados++;
+                } else {
+                    // Agregar nuevo
+                    itemsActuales.push(nuevo);
+                    agregados++;
+                }
+            });
+            
+            guardarDatos(categoriaActualId, itemsActuales);
+            cargarItemsEnGrid(categoriaActualId);
+            
+            let mensaje = `✅ ${agregados} productos importados`;
+            if (actualizados > 0) {
+                mensaje += ` • ${actualizados} actualizados`;
             }
-        });
-        
-        // GUARDAR CON VERIFICACIÓN
-        guardarDatos(categoriaActualId, itemsActuales);
-        
-        // Verificar que se guardó
-        const verificacion = obtenerDatos(categoriaActualId);
-        if (verificacion.length !== itemsActuales.length) {
-            throw new Error('Error de verificación al guardar productos');
+            
+            mostrarNotificacion(mensaje, 'success');
+            
+            // Registrar en auditoría
+            registrarAuditoria({
+                cajeroId: cajeroActual.id,
+                cajeroNombre: cajeroActual.nombre,
+                cajeroCodigo: cajeroActual.codigo,
+                tipo: 'importacion_productos',
+                categoria: categoriaActualId,
+                itemNombre: `Importación de ${agregados} productos`,
+                cantidad: agregados,
+                stockAnterior: itemsActuales.length - agregados,
+                stockNuevo: itemsActuales.length
+            });
         }
-        
-        cargarItemsEnGrid(categoriaActualId);
-        
-        let mensaje = `✅ ${agregados} productos importados`;
-        if (actualizados > 0) {
-            mensaje += ` • ${actualizados} actualizados`;
-        }
-        
-        mostrarNotificacion(mensaje, 'success');
-        
-        // Limpiar
-        productosImportados = [];
-        
-        // Registrar en auditoría
-        registrarAuditoria({
-            cajeroId: cajeroActual.id,
-            cajeroNombre: cajeroActual.nombre,
-            cajeroCodigo: cajeroActual.codigo,
-            tipo: 'importacion_productos',
-            categoria: categoriaActualId,
-            itemNombre: `Importación de ${agregados} productos`,
-            cantidad: agregados,
-            stockAnterior: itemsActuales.length - agregados,
-            stockNuevo: itemsActuales.length
-        });
-        
-    } catch (error) {
-        console.error('Error al importar productos:', error);
-        mostrarNotificacion('❌ Error al guardar productos: ' + error.message, 'error');
-    }
-}
-        
+
         function exportarProductosExcel() {
             const items = obtenerDatos(categoriaActualId);
             const categoria = obtenerCategorias().find(c => c.id === categoriaActualId);
