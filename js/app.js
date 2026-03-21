@@ -2,28 +2,8 @@
 // SISTEMA DE INVENTARIO INTEGRADO V1.0
 // ==========================================
 
-// Configuración de categorías por defecto
-const CATEGORIAS_DEFAULT = [
-    { id: 'sa', nombre: 'Categoría SA', icono: '🌭', descripcion: 'Completería', protegida: false },
-    { id: 'panaderia', nombre: 'Panadería', icono: '🥖', descripcion: 'Productos de panadería', protegida: false }
-];
-
-// Datos por defecto
+// SOLO datos por defecto del administrador
 const DATOS_DEFAULT = {
-    sa: [
-        { id: 'sa-1', nombre: 'Pan de Completo', cantidad: 50, unidad: 'unidades', minimo: 20 },
-        { id: 'sa-2', nombre: 'Vienesas', cantidad: 100, unidad: 'unidades', minimo: 30 },
-        { id: 'sa-3', nombre: 'Tomate', cantidad: 5, unidad: 'kg', minimo: 2 },
-        { id: 'sa-4', nombre: 'Palta', cantidad: 10, unidad: 'unidades', minimo: 5 },
-        { id: 'sa-5', nombre: 'Mayonesa', cantidad: 3, unidad: 'litros', minimo: 1 }
-    ],
-    panaderia: [
-        { id: 'pan-1', nombre: 'Muffin', cantidad: 24, unidad: 'unidades', minimo: 12 },
-        { id: 'pan-2', nombre: 'Marraqueta', cantidad: 30, unidad: 'unidades', minimo: 15 },
-        { id: 'pan-3', nombre: 'Hallullas', cantidad: 40, unidad: 'unidades', minimo: 20 },
-        { id: 'pan-4', nombre: 'Dobladitas', cantidad: 25, unidad: 'unidades', minimo: 10 },
-        { id: 'pan-5', nombre: 'Ciabatta', cantidad: 15, unidad: 'unidades', minimo: 8 }
-    ],
     cajeros: [
         { 
             id: 'admin-1', 
@@ -51,28 +31,37 @@ const STORAGE_KEYS = {
 // Variable global para cajero actual
 let cajeroActual = null;
 
+// Claves para LocalStorage
+const STORAGE_KEYS = {
+    categorias: 'inventario_categorias',
+    cajeros: 'inventario_cajeros',
+    auditoria: 'inventario_auditoria',
+    sesion: 'inventario_sesion'
+};
+
+// Variable global para cajero actual
+let cajeroActual = null;
+
 // ==========================================
 // INICIALIZACIÓN CORRECTA (VERSIÓN FINAL)
 // ==========================================
 
 function inicializarDatos() {
-    // Inicializar categorías si no existen
+    // Inicializar categorías como array vacío si no existen
     if (!localStorage.getItem(STORAGE_KEYS.categorias)) {
-        localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify(CATEGORIAS_DEFAULT));
+        localStorage.setItem(STORAGE_KEYS.categorias, JSON.stringify([]));
     }
     
-    // Inicializar datos de cada categoría
+    // Inicializar datos de cada categoría existente (dinámico, sin defaults)
     const categorias = obtenerCategorias();
     categorias.forEach(cat => {
         const key = `inventario_${cat.id}`;
-        if (!localStorage.getItem(key) && DATOS_DEFAULT[cat.id]) {
-            localStorage.setItem(key, JSON.stringify(DATOS_DEFAULT[cat.id]));
-        } else if (!localStorage.getItem(key)) {
+        if (!localStorage.getItem(key)) {
             localStorage.setItem(key, JSON.stringify([]));
         }
     });
     
-    // Inicializar cajeros (solo si no existen)
+    // Inicializar cajeros (solo si no existen - solo admin por defecto)
     const cajerosKey = STORAGE_KEYS.cajeros;
     const cajerosExistentes = localStorage.getItem(cajerosKey);
     
@@ -87,9 +76,6 @@ function inicializarDatos() {
     
     actualizarNavegacion();
     mostrarUsuarioActual();
-    
-    // NOTA: cargarDashboardDividido() se llama explícitamente desde index.html
-    // después de inicializarDatos() para evitar problemas de timing
 }
 
 // ==========================================
@@ -201,6 +187,7 @@ function crearCategoria(id, nombre, icono = '📦', descripcion = '') {
     categorias.push(nuevaCategoria);
     guardarCategorias(categorias);
     
+    // Inicializar array vacío para la nueva categoría (sin datos default)
     guardarDatos(id, []);
     
     registrarAuditoria({
@@ -1636,6 +1623,10 @@ function exportarLocalStorageCompleto() {
  * Limpia completamente el localStorage del sistema
  * Solo disponible para administradores - REQUIERE CONFIRMACIÓN DOBLE
  */
+/**
+ * Limpia completamente el localStorage del sistema
+ * Solo disponible para administradores - REQUIERE CONFIRMACIÓN DOBLE
+ */
 function limpiarLocalStorageCompleto() {
     if (!verificarSesion()) return;
     
@@ -1671,8 +1662,12 @@ function limpiarLocalStorageCompleto() {
         const adminBackup = {
             id: cajeroActual.id,
             nombre: cajeroActual.nombre,
-            codigo: cajeroActual.codigo,
-            password: '63717' // Password por defecto del admin
+            rut: '0.000.000-0',
+            turno: 'ADMIN',
+            codigo: 'ADMIN',
+            password: '637177',
+            cargo: 'Corporativo',
+            activo: true
         };
         
         // Obtener lista de todas las claves a eliminar
@@ -1691,31 +1686,14 @@ function limpiarLocalStorageCompleto() {
             'historial_conteos'
         );
         
-        // No eliminamos cajeros ni sesión todavía para mantener el acceso
-        
         // Eliminar todas las claves
         keysToRemove.forEach(key => {
             localStorage.removeItem(key);
         });
         
-        // Recrear datos mínimos del sistema
-        const CATEGORIAS_DEFAULT = [
-            { id: 'sa', nombre: 'Categoría SA', icono: '🌭', descripcion: 'Completería', protegida: false },
-            { id: 'panaderia', nombre: 'Panadería', icono: '🥖', descripcion: 'Productos de panadería', protegida: false }
-        ];
-        
-        localStorage.setItem('inventario_categorias', JSON.stringify(CATEGORIAS_DEFAULT));
-        localStorage.setItem('inventario_sa', JSON.stringify([
-            { id: 'sa-1', nombre: 'Pan de Completo', cantidad: 50, unidad: 'unidades', minimo: 20 },
-            { id: 'sa-2', nombre: 'Vienesas', cantidad: 100, unidad: 'unidades', minimo: 30 }
-        ]));
-        localStorage.setItem('inventario_panaderia', JSON.stringify([
-            { id: 'pan-1', nombre: 'Muffin', cantidad: 24, unidad: 'unidades', minimo: 12 }
-        ]));
-        
-        // Asegurar que el admin existe
-        const cajeros = [adminBackup];
-        localStorage.setItem('inventario_cajeros', JSON.stringify(cajeros));
+        // Recrear datos mínimos del sistema (SOLO admin, SIN categorías default)
+        localStorage.setItem('inventario_categorias', JSON.stringify([])); // Array vacío
+        localStorage.setItem('inventario_cajeros', JSON.stringify([adminBackup]));
         
         // Registrar la limpieza en auditoría (solo este registro quedará)
         const auditoriaLimpia = [{
@@ -1729,7 +1707,7 @@ function limpiarLocalStorageCompleto() {
             itemNombre: 'Limpieza completa del sistema',
             cantidad: 0,
             stockAnterior: categorias.length,
-            stockNuevo: 2
+            stockNuevo: 0
         }];
         localStorage.setItem('inventario_auditoria', JSON.stringify(auditoriaLimpia));
         
@@ -1745,10 +1723,6 @@ function limpiarLocalStorageCompleto() {
     }
 }
 
-/**
- * Importa datos desde un archivo JSON de backup
- * Solo disponible para administradores
- */
 function importarLocalStorageCompleto(event) {
     if (!verificarSesion()) return;
     
