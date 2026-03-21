@@ -11,7 +11,7 @@ const DATOS_DEFAULT = {
             rut: '0.000.000-0', 
             turno: 'ADMIN', 
             codigo: 'ADMIN', 
-            password: '63717',  // ← CORREGIDO: 5 dígitos, no 6
+            password: '63717',
             cargo: 'Corporativo',
             activo: true 
         }
@@ -20,7 +20,7 @@ const DATOS_DEFAULT = {
     sesion: null
 };
 
-// Claves para LocalStorage
+// Claves para LocalStorage - DECLARACIÓN ÚNICA
 const STORAGE_KEYS = {
     categorias: 'inventario_categorias',
     cajeros: 'inventario_cajeros',
@@ -28,18 +28,7 @@ const STORAGE_KEYS = {
     sesion: 'inventario_sesion'
 };
 
-// Variable global para cajero actual
-let cajeroActual = null;
-
-// Claves para LocalStorage
-const STORAGE_KEYS = {
-    categorias: 'inventario_categorias',
-    cajeros: 'inventario_cajeros',
-    auditoria: 'inventario_auditoria',
-    sesion: 'inventario_sesion'
-};
-
-// Variable global para cajero actual
+// Variable global para cajero actual - DECLARACIÓN ÚNICA
 let cajeroActual = null;
 
 // ==========================================
